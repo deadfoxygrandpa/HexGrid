@@ -23,16 +23,14 @@ toHexList grid =
         Rectangular hs -> hs
         Hexagonal   hs -> hs
         
-toPair : Hex a -> (Int, Int, a)        
-toPair hex = (hex.coord.x, hex.coord.y, hex.value)
-
-asText7 a = text . monospace . toText <| (take 7 <| (show a) ++ "  ")
+toTuple : Hex a -> (Int, Int, a)        
+toTuple hex = (hex.coord.x, hex.coord.y, hex.value)
 
 showHexGrid : HexGrid a -> Element
 showHexGrid grid =
     case grid of
-        Rectangular hs -> flow down . map asText . map (\row -> map toPair row) <| hs
-        Hexagonal   hs -> let rows = map (flow right . map asText) . map (\row -> map toPair row) <| hs
+        Rectangular hs -> flow down . map asText . map (\row -> map toTuple row) <| hs
+        Hexagonal   hs -> let rows = map (flow right . map asText) . map (\row -> map toTuple row) <| hs
                               l    = length hs
                               w    = widthOf <| head (drop (l `div` 2) rows)
                               rows' = map (\row -> container w (heightOf row) middle row) rows
@@ -67,4 +65,6 @@ insert ({x, y} as coord) z grid = if not <| inGrid coord grid then Nothing else
                               row'   = replace (x + radius + (min 0 y)) (Hex z (HexCoord x y)) row
                           in  Just . Hexagonal <| replace (y + radius) row' hs 
 
-main = asText <| rectangularHexGrid (5,3) False
+main = (showHexGrid <| rectangularHexGrid (5,3) False)
+       `above`
+       (showHexGrid <| rectangularHexGrid (5, 5) Nothing)
