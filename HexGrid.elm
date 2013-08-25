@@ -1,3 +1,5 @@
+module HexGrid where
+
 import Public.Preface.Preface (replace, splitAt)
 
 data HexGrid a = Rectangular [[Hex a]] | Hexagonal [[Hex a]]
@@ -57,12 +59,12 @@ inGrid {x, y} grid =
                                  | otherwise -> True
 
 insert : HexCoord -> a -> HexGrid a -> Maybe (HexGrid a)
-insert ({x, y} as coord) z grid = if (not <| inGrid coord grid) then Nothing else
+insert ({x, y} as coord) z grid = if not <| inGrid coord grid then Nothing else
     case grid of
         Rectangular hs -> Just grid
         Hexagonal   hs -> let radius = (length hs) `div` 2
                               row    = head . drop (y + radius) <| hs
                               row'   = replace (x + radius + (min 0 y)) (Hex z (HexCoord x y)) row
-                          in  Just <| Hexagonal <| replace (y + radius) row' hs 
+                          in  Just . Hexagonal <| replace (y + radius) row' hs 
 
-main = showHexGrid . maybe (Hexagonal [[]]) id . insert (HexCoord 0 3) False <| hexagonalHexGrid 3 True
+main = asText <| rectangularHexGrid (5,3) False
