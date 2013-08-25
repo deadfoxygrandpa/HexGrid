@@ -1,3 +1,5 @@
+import Public.Preface.Preface (replace, splitAt)
+
 data HexGrid a = Rectangular [[Hex a]] | Hexagonal [[Hex a]]
 type Hex a     = {value : a, coord : HexCoord}
 type HexCoord  = {x : Int, y : Int}
@@ -34,4 +36,33 @@ showHexGrid grid =
                               rows' = map (\row -> container w (heightOf row) middle row) rows
                           in  flow down rows'
 
-main = showHexGrid <| hexagonalHexGrid 3 True -- rectangularHexGrid (6, 6)
+inGrid : HexCoord -> HexGrid a -> Bool
+inGrid {x, y} grid =
+    case grid of
+        Rectangular hs -> let h = length hs
+                              w = length . head <| hs
+                              offset = y `div` 2
+                          in  if | y < 0  -> False
+                                 | y >= h -> False
+                                 | x >= w -> False
+                                 | x + offset < 0 -> False
+                                 | x + offset >= w -> False
+                                 | otherwise -> True
+        Hexagonal   hs -> let radius = (length hs) `div` 2
+                              offset = radius * 2 - (abs y)
+                          in  if | y < -radius -> False
+                                 | y >  radius -> False
+                                 | x + radius + (min 0 y) < 0 -> False
+                                 | x > offset - radius - (min 0 y) -> False
+                                 | otherwise -> True
+
+insert : HexCoord -> a -> HexGrid a -> Maybe (HexGrid a)
+insert ({x, y} as coord) z grid = if (not <| inGrid coord grid) then Nothing else
+    case grid of
+        Rectangular hs -> Just grid
+        Hexagonal   hs -> let radius = (length hs) `div` 2
+                              row    = head . drop (y + radius) <| hs
+                              row'   = replace (x + radius + (min 0 y)) (Hex z (HexCoord x y)) row
+                          in  Just <| Hexagonal <| replace (y + radius) row' hs 
+
+main = showHexGrid . maybe (Hexagonal [[]]) id . insert (HexCoord 0 3) False <| hexagonalHexGrid 3 True
