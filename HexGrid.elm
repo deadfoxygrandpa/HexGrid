@@ -1,44 +1,55 @@
 module HexGrid where
 
 import Set
+import Dict
 
 import Public.Preface.Preface (replace, splitAt, (#), repeat)
 
-data HexGrid a = Rectangular [[Hex a]] | Hexagonal [[Hex a]]
-type Hex a     = {value : a, coord : HexCoord}
+data HexGrid comparable = Rectangular [[Hex comparable]] | Hexagonal [[Hex comparable]]
+type Hex comparable     = {value : comparable, coord : HexCoord}
 type HexCoord  = {x : Int, y : Int}
 
-rectangularHexGrid : (Int, Int) -> a -> HexGrid a
+data Shaper = SColor Color | STextured String | SGradient Gradient | SOutlined LineStyle
+
+rectangularHexGrid : (Int, Int) -> comparable -> HexGrid comparable
 rectangularHexGrid (w, h) a =
     let row x y        = map (\n -> {value = a, coord = {x = n, y = y}}) [0-x..w - 1 - x]
         rowPair offset = [row offset (offset * 2), row offset (offset * 2 + 1)]
     in  Rectangular <| concatMap (\n -> rowPair n) [0..(ceiling <| (toFloat h) / 2) - 1]
 
-hexagonalHexGrid : Int -> a -> HexGrid a
+hexagonalHexGrid : Int -> comparable -> HexGrid comparable
 hexagonalHexGrid r a =
     let row y = map (\n -> {value = a, coord = {x = n - (min y r), y = y - r}}) [0..r*2 - (abs (r - y))]
     in  Hexagonal <| map (\n -> row n) [0..2*r]
 
-toHexList : HexGrid a -> [[Hex a]]
+toHexList : HexGrid comparable -> [[Hex comparable]]
 toHexList grid =
     case grid of
         Rectangular hs -> hs
         Hexagonal   hs -> hs
         
-toTuple : Hex a -> (Int, Int, a)        
+toTuple : Hex comparable -> (Int, Int, comparable)        
 toTuple hex = (hex.coord.x, hex.coord.y, hex.value)
 
-showHexGrid : Float -> HexGrid a -> Element
-showHexGrid r grid =
+showHexGrid : Float -> Dict.Dict comparable Shaper -> HexGrid comparable -> Element
+showHexGrid r dict grid =
     case grid of
         Rectangular hs -> flow down . map asText . map (\row -> map toTuple row) <| hs
         Hexagonal   hs -> let position {x, y} r = move (((sqrt 3) * r * (toFloat x) + ((sqrt 3)/2) * r * (toFloat y)), (-1.5 * r * (toFloat y)))
-                              drawHex coord r   = position coord r . rotate (degrees 30) . outlined defaultLine . ngon 6 <| r
+                              drawHex coord r v = position coord r . rotate (degrees 30) . makeForm (Dict.findWithDefault (SOutlined defaultLine) v dict) . ngon 6 <| r
                               w = round <| (sqrt 3) / 1.52 * (toFloat h)
                               h = round <| r * (toFloat <| length hs) * 1.53
-                          in  collage w h <| map (\hex -> drawHex hex.coord r) (concat hs)
+                          in  collage w h <| map (\hex -> drawHex hex.coord r hex.value) (concat hs)
 
-inGrid : HexCoord -> HexGrid a -> Bool
+makeForm : Shaper -> Shape -> Form
+makeForm shaper shape =
+    case shaper of
+        SColor c    -> filled c shape
+        STextured s -> textured s shape
+        SGradient g -> gradient g shape
+        SOutlined l -> outlined l shape
+
+inGrid : HexCoord -> HexGrid comparable -> Bool
 inGrid {x, y} grid =
     case grid of
         Rectangular hs -> let h = length hs
@@ -118,7 +129,7 @@ hexRound (x, y) =
            | errY > errZ                -> (rx, (-rx - rz))
            | otherwise                  -> (rx, ry)   
 
-insert : HexCoord -> a -> HexGrid a -> Maybe (HexGrid a)
+insert : HexCoord -> comparable -> HexGrid comparable -> Maybe (HexGrid comparable)
 insert ({x, y} as coord) z grid = if not <| inGrid coord grid then Nothing else
     case grid of
         Rectangular hs -> Just grid
@@ -127,4 +138,11 @@ insert ({x, y} as coord) z grid = if not <| inGrid coord grid then Nothing else
                               row'   = replace (x + radius + (min 0 y)) (Hex z (HexCoord x y)) row
                           in  Just . Hexagonal <| replace (y + radius) row' hs 
 
-main = showHexGrid 25 <| hexagonalHexGrid 10 Nothing
+-- Example
+
+styleGuide : Dict.Dict Int Shaper
+styleGuide = Dict.fromList [ (0, SOutlined defaultLine)
+                           , (1, SColor blue)
+                           ]
+
+main = showHexGrid 25 styleGuide <| foldr (\coord grid -> maybe grid id (insert coord 1 grid)) (hexagonalHexGrid 10 0) (diagonals <| HexCoord 0 0)
