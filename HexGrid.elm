@@ -9,7 +9,7 @@ type Hex a     = {value : a, coord : HexCoord}
 type HexCoord  = {x : Int, y : Int}
 
 rectangularHexGrid : (Int, Int) -> a -> HexGrid a
-rectangularHexGrid (w, h) a = 
+rectangularHexGrid (w, h) a =
     let row x y        = map (\n -> {value = a, coord = {x = n, y = y}}) [0-x..w - 1 - x]
         rowPair offset = [row offset (offset * 2), row offset (offset * 2 + 1)]
     in  Rectangular <| concatMap (\n -> rowPair n) [0..(ceiling <| (toFloat h) / 2) - 1]
@@ -28,15 +28,15 @@ toHexList grid =
 toTuple : Hex a -> (Int, Int, a)        
 toTuple hex = (hex.coord.x, hex.coord.y, hex.value)
 
-showHexGrid : HexGrid a -> Element
-showHexGrid grid =
+showHexGrid : Float -> HexGrid a -> Element
+showHexGrid r grid =
     case grid of
         Rectangular hs -> flow down . map asText . map (\row -> map toTuple row) <| hs
-        Hexagonal   hs -> let rows = map (flow right . map (\((a, b, c) as x) -> if (show c == "True") then color blue (asText x) else asText x)) . map (\row -> map toTuple row) <| hs
-                              l    = length hs
-                              w    = widthOf <| head (drop (l `div` 2) rows)
-                              rows' = map (\row -> container w (heightOf row) middle row) rows
-                          in  flow down rows'
+        Hexagonal   hs -> let position {x, y} r = move (((sqrt 3) * r * (toFloat x) + ((sqrt 3)/2) * r * (toFloat y)), (-1.5 * r * (toFloat y)))
+                              drawHex coord r   = position coord r . rotate (degrees 30) . outlined defaultLine . ngon 6 <| r
+                              w = round <| (sqrt 3) / 1.52 * (toFloat h)
+                              h = round <| r * (toFloat <| length hs) * 1.53
+                          in  collage w h <| map (\hex -> drawHex hex.coord r) (concat hs)
 
 inGrid : HexCoord -> HexGrid a -> Bool
 inGrid {x, y} grid =
@@ -127,4 +127,4 @@ insert ({x, y} as coord) z grid = if not <| inGrid coord grid then Nothing else
                               row'   = replace (x + radius + (min 0 y)) (Hex z (HexCoord x y)) row
                           in  Just . Hexagonal <| replace (y + radius) row' hs 
 
-main = (\n -> showHexGrid <| foldl (\coord grid -> maybe grid id <| insert coord True grid) (hexagonalHexGrid 6 False) <| ring (HexCoord 0 0) n) <~ (count <| every second)
+main = showHexGrid 25 <| hexagonalHexGrid 10 Nothing
