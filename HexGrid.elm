@@ -180,7 +180,8 @@ pixelToHexCoord3 s (x, y) =
         r = floor <| ((toFloat temp) + (toFloat (floor <| -x' + (sqrt 3) * y' + 1))) / (3 * s)
     in  HexCoord q r
 
-(droppa, func) = Input.dropDown [ ("Ring", flip ring)
+(droppa, func) = Input.dropDown [ ("None", (\_ _ -> []))
+                                , ("Ring", flip ring)
                                 , ("Range", flip range)
                                 , ("Diagonals", (\_ -> diagonals))
                                 , ("Neighbors", (\_ -> neighbors))]
