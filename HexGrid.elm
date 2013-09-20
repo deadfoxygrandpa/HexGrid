@@ -1,18 +1,38 @@
-module HexGrid where
-
 import Set
 import Dict
 import Mouse
 import Window
 import Graphics.Input as Input
 
-import Public.Preface.Preface (replace, splitAt, (#), repeat)
-
 data HexGrid comparable = Rectangular [[Hex comparable]] | Hexagonal [[Hex comparable]]
 type Hex comparable     = {value : comparable, coord : HexCoord}
 type HexCoord  = {x : Int, y : Int}
 
 data Shaper = SColor Color | STextured String | SGradient Gradient | SOutlined LineStyle
+
+-- Preface functions
+
+replace : Int -> a -> [a] -> [a]
+replace n x xs = if (n < 0 || n > (length xs)) then xs else
+    let (ys, zs) = splitAt n xs
+        zs'      = drop 1 zs
+    in  ys ++ (x :: zs')
+
+splitAt : Int -> [a] -> ([a], [a])
+splitAt n xs =  (take n xs, drop n xs)
+
+(#) : [a] -> Int -> Maybe a
+xs # n = case xs of
+           []     -> Nothing
+           (h::t) -> if | n < 0     -> Nothing
+                        | n == 0    -> Just h
+                        | otherwise -> t # (n-1)
+
+repeat : a -> Int -> [a]
+repeat x n = if | n <= 0    -> []
+                | otherwise -> x::repeat x (n-1)
+
+-- HexGrid starts here:
 
 rectangularHexGrid : (Int, Int) -> comparable -> HexGrid comparable
 rectangularHexGrid (w, h) a =
@@ -162,7 +182,7 @@ insertIfPossible ({x, y} as coord) z grid = if not <| inGrid coord grid then gri
 styleGuide : Dict.Dict Int Shaper
 styleGuide = Dict.fromList [ (0, SOutlined defaultLine)
                            , (1, SColor blue)
-                           , (2, SColor darkOrange)
+                           , (2, SColor red)
                            ]
 
 pixelToHexCoord2 : Float -> (Int, Int) -> HexCoord
@@ -170,6 +190,8 @@ pixelToHexCoord2 s (x, y) =
     let q = (1/3 * (sqrt 3) * (toFloat x) - 1/3 * (toFloat y)) / s
         r = 2/3 * (toFloat y) / s
     in  HexCoord (round q) (round r)
+
+-- This is the function we need to fix:
 
 pixelToHexCoord3 : Float -> (Int, Int) -> HexCoord
 pixelToHexCoord3 s (x, y) =
@@ -180,6 +202,8 @@ pixelToHexCoord3 s (x, y) =
         r = floor <| ((toFloat temp) + (toFloat (floor <| -x' + (sqrt 3) * y' + 1))) / (3 * s)
     in  HexCoord q r
 
+-- Demo stuff:
+
 (droppa, func) = Input.dropDown [ ("None", (\_ _ -> []))
                                 , ("Ring", flip ring)
                                 , ("Range", flip range)
@@ -187,14 +211,18 @@ pixelToHexCoord3 s (x, y) =
                                 , ("Neighbors", (\_ -> neighbors))]
 (txt, num) = Input.field "3"
 
-scene n (x, y) (w, h) selector f txtin s = 
+(droppa2, finder) = Input.dropDown [ ("Branchless", pixelToHexCoord3)
+                                   , ("Normal Round", pixelToHexCoord2)
+                                   , ("Hex Round", pixelToHexCoord)]
+
+scene n (x, y) (w, h) selector f txtin s selector2 pixelFinder = 
     let n' = maybe 3 id <| readInt s
         grid = hexagonalHexGrid 10 0
         grid' = foldr (\coord g -> insertIfPossible coord 2 g) grid <| f n' hovered
         grid'' = insertIfPossible hovered 1 grid'
         griddle = showHexGrid 25 styleGuide <| grid''
         pos = (x - (w `div` 2), y - (h `div` 2))
-        hovered = pixelToHexCoord3 25 pos
-    in  layers [container w h middle griddle, flow down [container w 50 midTop <| selector `above` txtin, asText hovered, asText <| pixelToHexCoord3 25 pos]]
+        hovered = pixelFinder 25 pos
+    in  layers [container w h middle griddle, flow down [container w 50 midTop <| selector `above` txtin, selector2, asText hovered, asText <| pixelToHexCoord3 25 pos]]
 
-main = scene 3 <~ Mouse.position ~ Window.dimensions ~ droppa ~ func ~ txt ~ num
+main = scene 3 <~ Mouse.position ~ Window.dimensions ~ droppa ~ func ~ txt ~ num ~ droppa2 ~ finder
