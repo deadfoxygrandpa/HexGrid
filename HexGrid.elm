@@ -2,6 +2,9 @@ module HexGrid where
 
 import Set
 import Dict
+import Mouse
+import Window
+import Graphics.Input as Input
 
 import Public.Preface.Preface (replace, splitAt, (#), repeat)
 
@@ -40,6 +43,13 @@ showHexGrid r dict grid =
                               w = round <| (sqrt 3) / 1.52 * (toFloat h)
                               h = round <| r * (toFloat <| length hs) * 1.53
                           in  collage w h <| map (\hex -> drawHex hex.coord r hex.value) (concat hs)
+
+pixelToHexCoord : Float -> (Int, Int) -> HexCoord
+pixelToHexCoord s (x, y) =
+    let q = (1/3 * (sqrt 3) * (toFloat x) - 1/3 * (toFloat y)) / s
+        r = 2/3 * (toFloat y) / s
+        (x', y') = hexRound (q, r)
+    in  HexCoord x' y'
 
 makeForm : Shaper -> Shape -> Form
 makeForm shaper shape =
@@ -138,11 +148,52 @@ insert ({x, y} as coord) z grid = if not <| inGrid coord grid then Nothing else
                               row'   = replace (x + radius + (min 0 y)) (Hex z (HexCoord x y)) row
                           in  Just . Hexagonal <| replace (y + radius) row' hs 
 
+insertIfPossible : HexCoord -> comparable -> HexGrid comparable -> HexGrid comparable
+insertIfPossible ({x, y} as coord) z grid = if not <| inGrid coord grid then grid else
+    case grid of
+        Rectangular hs -> grid
+        Hexagonal hs   -> let radius = (length hs) `div` 2
+                              row    = head . drop (y + radius) <| hs
+                              row'   = replace (x + radius + (min 0 y)) (Hex z (HexCoord x y)) row
+                          in  Hexagonal <| replace (y + radius) row' hs 
+
 -- Example
 
 styleGuide : Dict.Dict Int Shaper
 styleGuide = Dict.fromList [ (0, SOutlined defaultLine)
                            , (1, SColor blue)
+                           , (2, SColor darkOrange)
                            ]
 
-main = showHexGrid 25 styleGuide <| foldr (\coord grid -> maybe grid id (insert coord 1 grid)) (hexagonalHexGrid 10 0) (diagonals <| HexCoord 0 0)
+pixelToHexCoord2 : Float -> (Int, Int) -> HexCoord
+pixelToHexCoord2 s (x, y) =
+    let q = (1/3 * (sqrt 3) * (toFloat x) - 1/3 * (toFloat y)) / s
+        r = 2/3 * (toFloat y) / s
+    in  HexCoord (round q) (round r)
+
+pixelToHexCoord3 : Float -> (Int, Int) -> HexCoord
+pixelToHexCoord3 s (x, y) =
+    let x' = toFloat x
+        y' = toFloat y
+        temp = floor  <| x' + (sqrt 3) * y' + 1
+        q = floor <| ((toFloat (floor <| x' * 2 + 1)) + (toFloat temp)) / (3 * s)
+        r = floor <| ((toFloat temp) + (toFloat (floor <| -x' + (sqrt 3) * y' + 1))) / (3 * s)
+    in  HexCoord q r
+
+(droppa, func) = Input.dropDown [ ("Ring", flip ring)
+                                , ("Range", flip range)
+                                , ("Diagonals", (\_ -> diagonals))
+                                , ("Neighbors", (\_ -> neighbors))]
+(txt, num) = Input.field "3"
+
+scene n (x, y) (w, h) selector f txtin s = 
+    let n' = maybe 3 id <| readInt s
+        grid = hexagonalHexGrid 10 0
+        grid' = foldr (\coord g -> insertIfPossible coord 2 g) grid <| f n' hovered
+        grid'' = insertIfPossible hovered 1 grid'
+        griddle = showHexGrid 25 styleGuide <| grid''
+        pos = (x - (w `div` 2), y - (h `div` 2))
+        hovered = pixelToHexCoord3 25 pos
+    in  layers [container w h middle griddle, flow down [container w 50 midTop <| selector `above` txtin, asText hovered, asText <| pixelToHexCoord3 25 pos]]
+
+main = scene 3 <~ Mouse.position ~ Window.dimensions ~ droppa ~ func ~ txt ~ num
