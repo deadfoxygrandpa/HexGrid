@@ -1,3 +1,22 @@
+module HexGrid where
+
+{-| A library for creating and working with Hexagonal grids. The grids may be either rectangular or hexagonal in shape.
+A HexGrid must be of type `HexGrid comparable` which means each Hex must contain a value of any comparable type. This
+includes `Int`, `Float`, `Time`, `Char`, `String`, and tuples or lists of comparable types.
+
+Currently all hexes are pointy-top.
+
+# Build
+@docs rectangularHexGrid, hexagonalHexGrid, insert, insertIfPossible
+
+# Process
+@docs neighbor, neighbors, ring, range, diagonals, line, distance, inGrid
+
+# Interact
+@docs showHexGrid, pixelToHexCoord
+
+-}
+
 import Set
 import Dict
 import Mouse
@@ -34,12 +53,14 @@ repeat x n = if | n <= 0    -> []
 
 -- HexGrid starts here:
 
+{-| Create an empty rectangular hex grid -}
 rectangularHexGrid : (Int, Int) -> comparable -> HexGrid comparable
 rectangularHexGrid (w, h) a =
     let row x y        = map (\n -> {value = a, coord = {x = n, y = y}}) [0-x..w - 1 - x]
         rowPair offset = [row offset (offset * 2), row offset (offset * 2 + 1)]
     in  Rectangular <| concatMap (\n -> rowPair n) [0..(ceiling <| (toFloat h) / 2) - 1]
 
+{-| Create an empty hexagonal hex grid -}
 hexagonalHexGrid : Int -> comparable -> HexGrid comparable
 hexagonalHexGrid r a =
     let row y = map (\n -> {value = a, coord = {x = n - (min y r), y = y - r}}) [0..r*2 - (abs (r - y))]
@@ -54,6 +75,8 @@ toHexList grid =
 toTuple : Hex comparable -> (Int, Int, comparable)        
 toTuple hex = (hex.coord.x, hex.coord.y, hex.value)
 
+{-| Given a hex size in pixels, a Dict mapping hex values to Shaper types, and a HexGrid, 
+draw the HexGrid as a visual Element -}
 showHexGrid : Float -> Dict.Dict comparable Shaper -> HexGrid comparable -> Element
 showHexGrid r dict grid =
     case grid of
@@ -64,6 +87,8 @@ showHexGrid r dict grid =
                               h = round <| r * (toFloat <| length hs) * 1.53
                           in  collage w h <| map (\hex -> drawHex hex.coord r hex.value) (concat hs)
 
+{-| Given a hex size, and an onscreen pixel in (x, y) format, return the coordinate of the `Hex` this pixel is inside.
+This is useful for mouse interaction. Assumes the HexGrid is visually centered in the window. -}
 pixelToHexCoord : Float -> (Int, Int) -> HexCoord
 pixelToHexCoord s (x, y) =
     let q = (1/3 * (sqrt 3) * (toFloat x) - 1/3 * (toFloat y)) / s
@@ -79,6 +104,7 @@ makeForm shaper shape =
         SGradient g -> gradient g shape
         SOutlined l -> outlined l shape
 
+{-| Tests a `HexCoord` to see if it is inside the `HexGrid` -}
 inGrid : HexCoord -> HexGrid comparable -> Bool
 inGrid {x, y} grid =
     case grid of
@@ -99,14 +125,17 @@ inGrid {x, y} grid =
                                  | x > offset - radius - (min 0 y) -> False
                                  | otherwise -> True
 
+{-| Given a `HexCoord`, return all immediately surrounding `HexCoord`s in a list -}
 neighbors : HexCoord -> [HexCoord]
 neighbors {x, y} = [ HexCoord (x + 1) y, HexCoord (x + 1) (y - 1), HexCoord x (y - 1)
                    , HexCoord (x - 1) y, HexCoord (x - 1) (y + 1), HexCoord x (y + 1) ]
 
+{-| Given a `HexCoord`, return all `HexCoord`s "diagonal" to it in a list -}
 diagonals : HexCoord -> [HexCoord]
 diagonals {x, y} = [ HexCoord (x + 2) (y - 1), HexCoord (x + 1) (y - 2), HexCoord (x - 1) (y - 1)
                    , HexCoord (x - 2) (y + 1), HexCoord (x - 1) (y + 2), HexCoord (x + 1) (y + 1) ]   
 
+{-| Get the straight line distance between two `HexCoord`s -}
 distance : HexCoord -> HexCoord -> Int
 distance coord1 coord2 =
     let (x1, y1) = (coord1.x, coord1.y)
@@ -114,6 +143,7 @@ distance coord1 coord2 =
         (z1, z2) = (-(x1 - y1), -(x2 - y2))
     in  maximum [abs (x1 - x2), abs (y1 - y2), abs (z1 - z2)]
 
+{-| Return the list of `HexCoord`s that form the shortest straight line between two `HexCoord`s -}
 line : HexCoord -> HexCoord -> [HexCoord]
 line coord1 coord2 =
     let (x1, y1) = ((toFloat coord1.x) + 0.000001, (toFloat coord1.y) + 0.000001)
@@ -126,6 +156,7 @@ line coord1 coord2 =
         f x      = (toFloat x) / (toFloat n)
     in  map (\(a, b) -> HexCoord a b) . Set.toList . Set.fromList <| map (\i -> hexRound (x1 * (f i) + x2 * (1 - (f i)), y1 * (f i) + y2 * (1 - (f i)))) [0..n]
 
+{-| Return a list of all `HexCoord`s within a given distance of a given `HexCoord` -}
 range : HexCoord -> Int -> [HexCoord]
 range {x, y} n = 
     concatMap (\dx -> 
@@ -134,6 +165,7 @@ range {x, y} n =
         [max -n (-dx - n)..min n (-dx + n)]) 
     [-n..n]
 
+{-| Return a list of `HexCoord`s that form a ring shape of size n around a given `HexCoord` -}
 ring : HexCoord -> Int -> [HexCoord]
 ring {x, y} r =
     let h = HexCoord (x - r) (y + r) -- move southwest r tiles
@@ -142,6 +174,8 @@ ring {x, y} r =
             h
             (concatMap (\j -> repeat j r) [0..5])
 
+{-| Return the neighbor of a given `HexCoord` immediately in the given direction. Directions are an `Int` from 0 to 5.
+0 is immediately east, and they move counterclockwise from there. -}
 neighbor : HexCoord -> Int -> HexCoord
 neighbor {x, y} direction =
     let (dx, dy) = maybe (0, 0) id <| [ (1, 0), (1, -1), (0, -1)
@@ -159,6 +193,7 @@ hexRound (x, y) =
            | errY > errZ                -> (rx, (-rx - rz))
            | otherwise                  -> (rx, ry)   
 
+{-| Replace the value of the `Hex` at a given `HexCoord` -}
 insert : HexCoord -> comparable -> HexGrid comparable -> Maybe (HexGrid comparable)
 insert ({x, y} as coord) z grid = if not <| inGrid coord grid then Nothing else
     case grid of
@@ -168,6 +203,8 @@ insert ({x, y} as coord) z grid = if not <| inGrid coord grid then Nothing else
                               row'   = replace (x + radius + (min 0 y)) (Hex z (HexCoord x y)) row
                           in  Just . Hexagonal <| replace (y + radius) row' hs 
 
+{-| Like `insert`, but returns the original grid if given an invalid `HexCoord` instead of wrapping the result
+in a `Maybe` type. -}
 insertIfPossible : HexCoord -> comparable -> HexGrid comparable -> HexGrid comparable
 insertIfPossible ({x, y} as coord) z grid = if not <| inGrid coord grid then grid else
     case grid of
