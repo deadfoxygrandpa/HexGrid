@@ -91,10 +91,11 @@ showHexGrid r dict grid =
 This is useful for mouse interaction. Assumes the HexGrid is visually centered in the window. -}
 pixelToHexCoord : Float -> (Int, Int) -> HexCoord
 pixelToHexCoord s (x, y) =
-    let q = (1/3 * (sqrt 3) * (toFloat x) - 1/3 * (toFloat y)) / s
-        r = 2/3 * (toFloat y) / s
-        (x', y') = hexRound (q, r)
-    in  HexCoord x' y'
+    let x' = toFloat (x)/(sqrt(3)*s)
+        y' = toFloat (y)/s
+        r = floor <| toFloat((floor <| (y' - x') + 1) + (floor <| (y' + x') + 1))/3
+        q = floor <| toFloat((floor <| (2 * x') + 1) - r)/2
+    in HexCoord q r
 
 makeForm : Shaper -> Shape -> Form
 makeForm shaper shape =
