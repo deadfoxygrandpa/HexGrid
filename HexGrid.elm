@@ -223,23 +223,6 @@ styleGuide = Dict.fromList [ (0, SOutlined defaultLine)
                            , (2, SColor red)
                            ]
 
-pixelToHexCoord2 : Float -> (Int, Int) -> HexCoord
-pixelToHexCoord2 s (x, y) =
-    let q = (1/3 * (sqrt 3) * (toFloat x) - 1/3 * (toFloat y)) / s
-        r = 2/3 * (toFloat y) / s
-    in  HexCoord (round q) (round r)
-
--- This is the function we need to fix:
-
-pixelToHexCoord3 : Float -> (Int, Int) -> HexCoord
-pixelToHexCoord3 s (x, y) =
-    let x' = toFloat x
-        y' = toFloat y
-        temp = floor  <| x' + (sqrt 3) * y' + 1
-        q = floor <| ((toFloat (floor <| x' * 2 + 1)) + (toFloat temp)) / (3 * s)
-        r = floor <| ((toFloat temp) + (toFloat (floor <| -x' + (sqrt 3) * y' + 1))) / (3 * s)
-    in  HexCoord q r
-
 -- Demo stuff:
 
 (droppa, func) = Input.dropDown [ ("None", (\_ _ -> []))
@@ -249,9 +232,7 @@ pixelToHexCoord3 s (x, y) =
                                 , ("Neighbors", (\_ -> neighbors))]
 (txt, num) = Input.field "3"
 
-(droppa2, finder) = Input.dropDown [ ("Branchless", pixelToHexCoord3)
-                                   , ("Normal Round", pixelToHexCoord2)
-                                   , ("Hex Round", pixelToHexCoord)]
+(droppa2, finder) = Input.dropDown [ ("Branchless", pixelToHexCoord) ]
 
 scene n (x, y) (w, h) selector f txtin s selector2 pixelFinder = 
     let n' = maybe 3 id <| readInt s
