@@ -1,4 +1,5 @@
 language: haskell
+before_install: node --v8-options | grep -B0 -A1 stack_size
 install:
   - cabal install elm-get
   - sudo ln -s ~/.cabal/bin/elm /usr/local/bin/elm
@@ -13,4 +14,4 @@ install:
   - echo "n" | elm-get install deadfoxygrandpa/Elm-Test
   - npm install jsdom
 before_script: elm-io --default-ports Tests/Tests.elm tests.js
-script: node tests.js
+script: node --stack-size=1024 tests.js
