@@ -19,40 +19,14 @@ Currently all hexes are pointy-top.
 
 import Set
 import Dict
-import Mouse
-import Window
-import Graphics.Input as Input
-import String
+
+import open Helpers
 
 data HexGrid comparable = Rectangular [[Hex comparable]] | Hexagonal [[Hex comparable]]
 type Hex comparable     = {value : comparable, coord : HexCoord}
 type HexCoord  = {x : Int, y : Int}
 
 data Shaper = SColor Color | STextured String | SGradient Gradient | SOutlined LineStyle
-
--- Preface functions
-
-replace : Int -> a -> [a] -> [a]
-replace n x xs = if (n < 0 || n > (length xs)) then xs else
-    let (ys, zs) = splitAt n xs
-        zs'      = drop 1 zs
-    in  ys ++ (x :: zs')
-
-splitAt : Int -> [a] -> ([a], [a])
-splitAt n xs =  (take n xs, drop n xs)
-
-(#) : [a] -> Int -> Maybe a
-xs # n = case xs of
-           []     -> Nothing
-           (h::t) -> if | n < 0     -> Nothing
-                        | n == 0    -> Just h
-                        | otherwise -> t # (n-1)
-
-repeat : a -> Int -> [a]
-repeat x n = if | n <= 0    -> []
-                | otherwise -> x::repeat x (n-1)
-
--- HexGrid starts here:
 
 {-| Create an empty rectangular hex grid -}
 rectangularHexGrid : (Int, Int) -> comparable -> HexGrid comparable
@@ -174,7 +148,7 @@ ring {x, y} r =
     in  scanl (\i h' ->
             neighbor h' i)
             h
-            (concatMap (\j -> repeat j r) [0..5])
+            (concatMap (\j -> repeat r j) [0..5])
 
 {-| Return the neighbor of a given `HexCoord` immediately in the given direction. Directions are an `Int` from 0 to 5.
 0 is immediately east, and they move counterclockwise from there. -}
@@ -215,34 +189,3 @@ insertIfPossible ({x, y} as coord) z grid = if not <| inGrid coord grid then gri
                               row    = head . drop (y + radius) <| hs
                               row'   = replace (x + radius + (min 0 y)) (Hex z (HexCoord x y)) row
                           in  Hexagonal <| replace (y + radius) row' hs 
-
--- Example
-
-styleGuide : Dict.Dict Int Shaper
-styleGuide = Dict.fromList [ (0, SOutlined defaultLine)
-                           , (1, SColor blue)
-                           , (2, SColor red)
-                           ]
-
--- Demo stuff:
-
-(droppa, func) = Input.dropDown [ ("None", (\_ _ -> []))
-                                , ("Ring", flip ring)
-                                , ("Range", flip range)
-                                , ("Diagonals", (\_ -> diagonals))
-                                , ("Neighbors", (\_ -> neighbors))]
-(txt, num) = Input.field "3"
-
-(droppa2, finder) = Input.dropDown [ ("Branchless", pixelToHexCoord) ]
-
-scene n (x, y) (w, h) selector f txtin s selector2 pixelFinder = 
-    let n' = maybe 3 id <| String.toInt s
-        grid = hexagonalHexGrid 10 0
-        grid' = foldr (\coord g -> insertIfPossible coord 2 g) grid <| f n' hovered
-        grid'' = insertIfPossible hovered 1 grid'
-        griddle = showHexGrid 25 styleGuide <| grid''
-        pos = (x - (w `div` 2), y - (h `div` 2))
-        hovered = pixelFinder 25 pos
-    in  layers [container w h middle griddle, flow down [container w 50 midTop <| selector `above` txtin, selector2, asText hovered, asText <| pixelToHexCoord 25 pos]]
-
-main = scene 3 <~ Mouse.position ~ Window.dimensions ~ droppa ~ func ~ txt ~ num ~ droppa2 ~ finder
