@@ -12,5 +12,5 @@ install:
   - echo "y" | elm-get install evancz/automaton
   - echo "n" | elm-get install deadfoxygrandpa/Elm-Test
   - npm install jsdom
-before_script: elm-io --default-ports Tests/Tests.elm tests.js
+before_script: elm-io --default-ports Tests/NodeTests.elm tests.js
 script: node --stack-size=32000 tests.js

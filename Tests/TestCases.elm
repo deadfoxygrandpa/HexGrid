@@ -1,8 +1,7 @@
-module Main where
+module Tests.TestCases where
 
 import Dict
 
-import ElmTest.Runner.Console (runDisplay)
 import open ElmTest.Test
 import open ElmTest.Assertion
 
@@ -242,5 +241,3 @@ tests = rectangularHexGridTests
      ++ ringTests
      ++ insertTests
      ++ insertIfPossibleTests
-
-console = runDisplay tests
