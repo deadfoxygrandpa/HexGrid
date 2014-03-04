@@ -1,4 +1,6 @@
-module Tests where
+module Main where
+
+import Dict
 
 import ElmTest.Runner.Console (runDisplay)
 import open ElmTest.Test
@@ -60,7 +62,25 @@ toHexListTests = testUnaryFunction toHexList
         [[{ coord = { x = 0, y = 0 }, value = 0 }]])
     ]
 
+showHexGridTests : [Test]
+showHexGridTests =
+    let style = Dict.fromList 
+                    [ (0, SOutlined defaultLine)
+                    , (1, SColor blue)
+                    , (2, SColor red)
+                    ] in
+    [ test "showHexGrid - Rectangular" <| 
+        assertEqual (show <| showHexGrid 1 style <| rectangularHexGrid (1, 1) 0) "<internal structure>"
+    , test "showHexGrid - Hexagonal" <| 
+        assertEqual (show <| showHexGrid 1 style <| hexagonalHexGrid 1 0) "<internal structure>"
+    ]
+
 tests : [Test]
-tests = rectangularHexGridTests ++ hexagonalHexGridTests ++ toHexListTests
+tests = rectangularHexGridTests 
+     ++ hexagonalHexGridTests 
+     ++ toHexListTests
+     ++ showHexGridTests
+
+
 
 console = runDisplay tests        
