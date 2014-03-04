@@ -46,11 +46,11 @@ toHexList grid =
     case grid of
         Rectangular hs -> hs
         Hexagonal   hs -> hs
-        
-toTuple : Hex comparable -> (Int, Int, comparable)        
+
+toTuple : Hex comparable -> (Int, Int, comparable)
 toTuple hex = (hex.coord.x, hex.coord.y, hex.value)
 
-{-| Given a hex size in pixels, a Dict mapping hex values to Shaper types, and a HexGrid, 
+{-| Given a hex size in pixels, a Dict mapping hex values to Shaper types, and a HexGrid,
 draw the HexGrid as a visual Element -}
 showHexGrid : Float -> Dict.Dict comparable Shaper -> HexGrid comparable -> Element
 showHexGrid r dict grid =
@@ -109,7 +109,7 @@ neighbors {x, y} = [ HexCoord (x + 1) y, HexCoord (x + 1) (y - 1), HexCoord x (y
 {-| Given a `HexCoord`, return all `HexCoord`s "diagonal" to it in a list -}
 diagonals : HexCoord -> [HexCoord]
 diagonals {x, y} = [ HexCoord (x + 2) (y - 1), HexCoord (x + 1) (y - 2), HexCoord (x - 1) (y - 1)
-                   , HexCoord (x - 2) (y + 1), HexCoord (x - 1) (y + 2), HexCoord (x + 1) (y + 1) ]   
+                   , HexCoord (x - 2) (y + 1), HexCoord (x - 1) (y + 2), HexCoord (x + 1) (y + 1) ]
 
 {-| Get the straight line distance between two `HexCoord`s -}
 distance : HexCoord -> HexCoord -> Int
@@ -134,11 +134,11 @@ line coord1 coord2 =
 
 {-| Return a list of all `HexCoord`s within a given distance of a given `HexCoord` -}
 range : HexCoord -> Int -> [HexCoord]
-range {x, y} n = 
-    concatMap (\dx -> 
-        map (\dy -> 
-            HexCoord (x + dx) (y + dy)) 
-        [max -n (-dx - n)..min n (-dx + n)]) 
+range {x, y} n =
+    concatMap (\dx ->
+        map (\dy ->
+            HexCoord (x + dx) (y + dy))
+        [max -n (-dx - n)..min n (-dx + n)])
     [-n..n]
 
 {-| Return a list of `HexCoord`s that form a ring shape of size n around a given `HexCoord` -}
@@ -169,7 +169,7 @@ hexRound (x, y) =
         errZ         = abs (rz - z)
     in  if | errX > errY && errX > errZ -> ((-ry - rz), ry)
            | errY > errZ                -> (rx, (-rx - rz))
-           | otherwise                  -> (rx, ry)   
+           | otherwise                  -> (rx, ry)
 
 {-| Replace the value of the `Hex` at a given `HexCoord` -}
 insert : HexCoord -> comparable -> HexGrid comparable -> Maybe (HexGrid comparable)
@@ -179,7 +179,7 @@ insert ({x, y} as coord) z grid = if not <| inGrid coord grid then Nothing else
         Hexagonal   hs -> let radius = (length hs) `div` 2
                               row    = head . drop (y + radius) <| hs
                               row'   = replace (x + radius + (min 0 y)) (Hex z (HexCoord x y)) row
-                          in  Just . Hexagonal <| replace (y + radius) row' hs 
+                          in  Just . Hexagonal <| replace (y + radius) row' hs
 
 {-| Like `insert`, but returns the original grid if given an invalid `HexCoord` instead of wrapping the result
 in a `Maybe` type. -}
@@ -190,4 +190,4 @@ insertIfPossible ({x, y} as coord) z grid = if not <| inGrid coord grid then gri
         Hexagonal hs   -> let radius = (length hs) `div` 2
                               row    = head . drop (y + radius) <| hs
                               row'   = replace (x + radius + (min 0 y)) (Hex z (HexCoord x y)) row
-                          in  Hexagonal <| replace (y + radius) row' hs 
+                          in  Hexagonal <| replace (y + radius) row' hs

@@ -22,7 +22,7 @@ styleGuide = Dict.fromList [ (0, SOutlined defaultLine)
                                 , ("Neighbors", (\_ -> neighbors))]
 (txt, num) = Input.field "3"
 
-scene (x, y) (w, h) selector f txtin s = 
+scene (x, y) (w, h) selector f txtin s =
     let n' = maybe 3 id <| String.toInt s
         grid = hexagonalHexGrid 10 0
         grid' = foldr (\coord g -> insertIfPossible coord 2 g) grid <| f n' hovered
