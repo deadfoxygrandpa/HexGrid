@@ -145,10 +145,12 @@ range {x, y} n =
 ring : HexCoord -> Int -> [HexCoord]
 ring {x, y} r =
     let h = HexCoord (x - r) (y + r) -- move southwest r tiles
-    in  scanl (\i h' ->
-            neighbor h' i)
-            h
-            (concatMap (\j -> repeat r j) [0..5])
+    in  if | r < 0 -> []
+           | otherwise ->
+                 scanl (\i h' ->
+                     neighbor h' i)
+                     h
+                     (concatMap (\j -> repeat r j) [0..5])
 
 {-| Return the neighbor of a given `HexCoord` immediately in the given direction. Directions are an `Int` from 0 to 5.
 0 is immediately east, and they move counterclockwise from there. -}
