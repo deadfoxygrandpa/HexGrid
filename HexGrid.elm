@@ -22,6 +22,7 @@ import Dict
 import Mouse
 import Window
 import Graphics.Input as Input
+import String
 
 data HexGrid comparable = Rectangular [[Hex comparable]] | Hexagonal [[Hex comparable]]
 type Hex comparable     = {value : comparable, coord : HexCoord}
@@ -235,13 +236,13 @@ styleGuide = Dict.fromList [ (0, SOutlined defaultLine)
 (droppa2, finder) = Input.dropDown [ ("Branchless", pixelToHexCoord) ]
 
 scene n (x, y) (w, h) selector f txtin s selector2 pixelFinder = 
-    let n' = maybe 3 id <| readInt s
+    let n' = maybe 3 id <| String.toInt s
         grid = hexagonalHexGrid 10 0
         grid' = foldr (\coord g -> insertIfPossible coord 2 g) grid <| f n' hovered
         grid'' = insertIfPossible hovered 1 grid'
         griddle = showHexGrid 25 styleGuide <| grid''
         pos = (x - (w `div` 2), y - (h `div` 2))
         hovered = pixelFinder 25 pos
-    in  layers [container w h middle griddle, flow down [container w 50 midTop <| selector `above` txtin, selector2, asText hovered, asText <| pixelToHexCoord3 25 pos]]
+    in  layers [container w h middle griddle, flow down [container w 50 midTop <| selector `above` txtin, selector2, asText hovered, asText <| pixelToHexCoord 25 pos]]
 
 main = scene 3 <~ Mouse.position ~ Window.dimensions ~ droppa ~ func ~ txt ~ num ~ droppa2 ~ finder
