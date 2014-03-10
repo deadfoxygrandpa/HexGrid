@@ -58,8 +58,9 @@ showHexGrid r dict grid =
         Rectangular hs -> flow down . map asText . map (\row -> map toTuple row) <| hs
         Hexagonal   hs -> let position {x, y} r = move (((sqrt 3) * r * (toFloat x) + ((sqrt 3)/2) * r * (toFloat y)), (-1.5 * r * (toFloat y)))
                               drawHex coord r v = position coord r . rotate (degrees 30) . makeForm (Dict.findWithDefault (SOutlined defaultLine) v dict) . ngon 6 <| r
-                              w = round <| (sqrt 3) / 1.52 * (toFloat h)
-                              h = round <| r * (toFloat <| length hs) * 1.53
+                              w = let w' = round <| (sqrt 3) / 2 * r
+                                  in 2 * (w' + (length hs) * w')
+                              h = round <| r * (toFloat <| length hs) * 2.5 + r
                           in  collage w h <| map (\hex -> drawHex hex.coord r hex.value) (concat hs)
 
 {-| Given a hex size, and an onscreen pixel in (x, y) format, return the coordinate of the `Hex` this pixel is inside.
