@@ -2,3 +2,5 @@ HexGrid [![Build Status](https://travis-ci.org/deadfoxygrandpa/HexGrid.png?branc
 =======
 
 A module for working with HexGrids in Elm
+
+[See the demo here](http://deadfoxygrandpa.github.io/HexGrid/)
