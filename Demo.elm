@@ -22,16 +22,29 @@ styleGuide = Dict.fromList [ (0, SOutlined defaultLine)
                                 , ("Neighbors", (\_ -> neighbors))]
 (txt, num) = Input.field "3"
 
-scene (x, y) (w, h) selector f txtin s =
+(txt2, num2) = Input.field "10"
+
+scene (x, y) (w, h) selector f txtin s txt2in s2 =
     let n' = maybe 3 id <| String.toInt s
-        gridSize = 10
-        hexSize = min (100000) ((1 * (toFloat h)) / (3 * gridSize + 2))
+        gridSize = maybe 10 id <| String.toInt s2
+        hexSize = min (100000) ((1 * (toFloat h)) / (3 * (toFloat gridSize) + 2))
         grid = hexagonalHexGrid gridSize 0
         grid' = foldr (\coord g -> insertIfPossible coord 2 g) grid <| f n' hovered
         grid'' = insertIfPossible hovered 1 grid'
-        griddle = color green <| showHexGrid hexSize styleGuide <| grid''
+        griddle = showHexGrid hexSize styleGuide <| grid''
         pos = (x - (w `div` 2), y - (h `div` 2))
         hovered = pixelToHexCoord hexSize pos
-    in  layers [container w h middle griddle, flow down [container w 50 topLeft <| selector `above` txtin, asText hovered, asText <| sizeOf griddle]]
+        panel = flow down [ text . bold . toText <| "control panel:"
+                           , flow right <| map (width 100) [plainText "effect:", selector]
+                           , flow right <| map (width 100) [plainText "effect size: ", color lightGreen txtin]
+                           , flow right <| map (width 100) [plainText "grid size: ", color lightYellow txt2in]
+                           , plainText "hex coord your mouse is at:"
+                           , asText hovered
+                           ]
+    in  layers [ container w h middle griddle
+               , color darkPurple  <| spacer (widthOf panel + 5) (heightOf panel + 5)
+               , color lightPurple <| spacer (widthOf panel + 3) (heightOf panel + 3)
+               , container (widthOf panel + 5) (heightOf panel + 5) middle panel
+               ]
 
-main = scene <~ Mouse.position ~ Window.dimensions ~ droppa ~ func ~ txt ~ num
+main = scene <~ Mouse.position ~ Window.dimensions ~ droppa ~ func ~ txt ~ num ~ txt2 ~ num2
