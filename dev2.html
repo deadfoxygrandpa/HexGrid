@@ -1,0 +1,935 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="UTF-8"><title>Demo</title><script type="text/javascript" src="elm-runtime.js"></script><script type="text/javascript">Elm.Demo = Elm.Demo || {};
+Elm.Demo.make = function (_elm) {
+   _elm.Demo = _elm.Demo || {};
+   if (_elm.Demo.values)
+   return _elm.Demo.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _E = _N.Error.make(_elm),
+   _J = _N.JavaScript.make(_elm),
+   $moduleName = "Demo";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Dict = Elm.Dict.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Input = Elm.Graphics.Input.make(_elm);
+   var HexGrid = Elm.HexGrid.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Mouse = Elm.Mouse.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Prelude = Elm.Prelude.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var Window = Elm.Window.make(_elm);
+   var _op = {};
+   var $ = Graphics.Input.field("10"),
+   txt2 = $._0,
+   num2 = $._1;
+   var gridSizesignal = A2(Signal._op["<~"],
+   A2(Maybe.maybe,10,Basics.id),
+   A2(Signal._op["<~"],
+   String.toInt,
+   num2));
+   var gridsignal = A2(Signal._op["<~"],
+   A2(Basics.flip,
+   HexGrid.hexagonalHexGrid,
+   0),
+   gridSizesignal);
+   var hexs = A2(Signal._op["~"],
+   A2(Signal._op["<~"],
+   F2(function (s,h) {
+      return A2(Basics.min,
+      100000,
+      1 * Basics.toFloat(h) / (3 * Basics.toFloat(s) + 2));
+   }),
+   gridSizesignal),
+   Window.height);
+   var $ = Graphics.Input.field("3"),
+   txt = $._0,
+   num = $._1;
+   var $ = Graphics.Input.dropDown(_J.toList([{ctor: "_Tuple2"
+                                              ,_0: "None"
+                                              ,_1: F2(function (_v0,_v1) {
+                                                 return function () {
+                                                    return function () {
+                                                       return _J.toList([]);
+                                                    }();
+                                                 }();
+                                              })}
+                                             ,{ctor: "_Tuple2"
+                                              ,_0: "Ring"
+                                              ,_1: Basics.flip(HexGrid.ring)}
+                                             ,{ctor: "_Tuple2"
+                                              ,_0: "Range"
+                                              ,_1: Basics.flip(HexGrid.range)}
+                                             ,{ctor: "_Tuple2"
+                                              ,_0: "Diagonals"
+                                              ,_1: function (_v4) {
+                                                 return function () {
+                                                    return HexGrid.diagonals;
+                                                 }();
+                                              }}
+                                             ,{ctor: "_Tuple2"
+                                              ,_0: "Neighbors"
+                                              ,_1: function (_v6) {
+                                                 return function () {
+                                                    return HexGrid.neighbors;
+                                                 }();
+                                              }}])),
+   droppa = $._0,
+   func = $._1;
+   var styleGuide = Dict.fromList(_J.toList([{ctor: "_Tuple2"
+                                             ,_0: 0
+                                             ,_1: HexGrid.SOutlined(Graphics.Collage.defaultLine)}
+                                            ,{ctor: "_Tuple2"
+                                             ,_0: 1
+                                             ,_1: HexGrid.SColor(Color.blue)}
+                                            ,{ctor: "_Tuple2"
+                                             ,_0: 2
+                                             ,_1: HexGrid.SColor(Color.red)}]));
+   var gride = A2(Signal._op["~"],
+   A2(Signal._op["<~"],
+   F2(function (g,s) {
+      return A3(HexGrid.showHexGrid,
+      s,
+      styleGuide,
+      g);
+   }),
+   gridsignal),
+   hexs);
+   var scene = function (_v8) {
+      return function (_v9) {
+         return function (selector) {
+            return function (f) {
+               return function (txtin) {
+                  return function (s) {
+                     return function (txt2in) {
+                        return function (gridSize) {
+                           return function (grid) {
+                              return function (griddle) {
+                                 return function (hexSize) {
+                                    return function () {
+                                       switch (_v9.ctor)
+                                       {case "_Tuple2":
+                                          return function () {
+                                               switch (_v8.ctor)
+                                               {case "_Tuple2":
+                                                  return function () {
+                                                       var pos = {ctor: "_Tuple2"
+                                                                 ,_0: _v8._0 - (_v9._0 / 2 | 0)
+                                                                 ,_1: _v8._1 - (_v9._1 / 2 | 0)};
+                                                       var hovered = A2(HexGrid.pixelToHexCoord,
+                                                       hexSize,
+                                                       pos);
+                                                       var panel = A2(Graphics.Element.flow,
+                                                       Graphics.Element.down,
+                                                       _J.toList([Text.text(Text.bold(Text.toText("control panel:")))
+                                                                 ,Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
+                                                                 Graphics.Element.width(100),
+                                                                 _J.toList([Text.plainText("effect:")
+                                                                           ,selector])))
+                                                                 ,Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
+                                                                 Graphics.Element.width(100),
+                                                                 _J.toList([Text.plainText("effect size: ")
+                                                                           ,A2(Graphics.Element.color,
+                                                                           Color.lightGreen,
+                                                                           txtin)])))
+                                                                 ,Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
+                                                                 Graphics.Element.width(100),
+                                                                 _J.toList([Text.plainText("grid size: ")
+                                                                           ,A2(Graphics.Element.color,
+                                                                           Color.lightYellow,
+                                                                           txt2in)])))
+                                                                 ,Text.plainText("hex coord your mouse is at:")
+                                                                 ,Text.asText(hovered)]));
+                                                       var n$ = A2(Maybe.maybe,
+                                                       3,
+                                                       Basics.id)(String.toInt(s));
+                                                       var floato = A4(HexGrid.showHexGrid2,
+                                                       hexSize,
+                                                       _v9._0,
+                                                       _v9._1,
+                                                       styleGuide)(HexGrid.Hexagonal(_J.toList([List.filter(function (h) {
+                                                          return A2(HexGrid.inGrid,
+                                                          h.coord,
+                                                          grid);
+                                                       })(_L.append(_J.toList([A2(HexGrid.Hex,
+                                                       1,
+                                                       hovered)]),
+                                                       List.map(function (c) {
+                                                          return A2(HexGrid.Hex,
+                                                          2,
+                                                          c);
+                                                       })(A2(f,
+                                                       n$,
+                                                       hovered))))])));
+                                                       return Graphics.Element.layers(_J.toList([A4(Graphics.Element.container,
+                                                                                                _v9._0,
+                                                                                                _v9._1,
+                                                                                                Graphics.Element.middle,
+                                                                                                griddle)
+                                                                                                ,A4(Graphics.Element.container,
+                                                                                                _v9._0,
+                                                                                                _v9._1,
+                                                                                                Graphics.Element.middle,
+                                                                                                floato)
+                                                                                                ,Graphics.Element.color(Color.darkPurple)(A2(Graphics.Element.spacer,
+                                                                                                Graphics.Element.widthOf(panel) + 5,
+                                                                                                Graphics.Element.heightOf(panel) + 5))
+                                                                                                ,Graphics.Element.color(Color.lightPurple)(A2(Graphics.Element.spacer,
+                                                                                                Graphics.Element.widthOf(panel) + 3,
+                                                                                                Graphics.Element.heightOf(panel) + 3))
+                                                                                                ,A4(Graphics.Element.container,
+                                                                                                Graphics.Element.widthOf(panel) + 5,
+                                                                                                Graphics.Element.heightOf(panel) + 5,
+                                                                                                Graphics.Element.middle,
+                                                                                                panel)]));
+                                                    }();}
+                                               _E.Case($moduleName,
+                                               "between lines 33 and 51");
+                                            }();}
+                                       _E.Case($moduleName,
+                                       "between lines 33 and 51");
+                                    }();
+                                 };
+                              };
+                           };
+                        };
+                     };
+                  };
+               };
+            };
+         };
+      };
+   };
+   var main = A2(Signal._op["~"],
+   A2(Signal._op["~"],
+   A2(Signal._op["~"],
+   A2(Signal._op["~"],
+   A2(Signal._op["~"],
+   A2(Signal._op["~"],
+   A2(Signal._op["~"],
+   A2(Signal._op["~"],
+   A2(Signal._op["~"],
+   A2(Signal._op["~"],
+   A2(Signal._op["<~"],
+   scene,
+   Mouse.position),
+   Window.dimensions),
+   droppa),
+   func),
+   txt),
+   num),
+   txt2),
+   gridSizesignal),
+   gridsignal),
+   gride),
+   hexs);
+   _elm.Demo.values = {_op: _op
+                      ,styleGuide: styleGuide
+                      ,droppa: droppa
+                      ,func: func
+                      ,num: num
+                      ,txt: txt
+                      ,num2: num2
+                      ,txt2: txt2
+                      ,gridsignal: gridsignal
+                      ,gridSizesignal: gridSizesignal
+                      ,gride: gride
+                      ,hexs: hexs
+                      ,scene: scene
+                      ,main: main};
+   return _elm.Demo.values;
+};Elm.HexGrid = Elm.HexGrid || {};
+Elm.HexGrid.make = function (_elm) {
+   _elm.HexGrid = _elm.HexGrid || {};
+   if (_elm.HexGrid.values)
+   return _elm.HexGrid.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _E = _N.Error.make(_elm),
+   _J = _N.JavaScript.make(_elm),
+   $moduleName = "HexGrid";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Dict = Elm.Dict.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var Helpers = Elm.Helpers.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Prelude = Elm.Prelude.make(_elm);
+   var Set = Elm.Set.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var hexRound = function (_v0) {
+      return function () {
+         switch (_v0.ctor)
+         {case "_Tuple2":
+            return function () {
+                 var z = 0 - (_v0._0 - _v0._1);
+                 var $ = {ctor: "_Tuple3"
+                         ,_0: Basics.round(_v0._0)
+                         ,_1: Basics.round(_v0._1)
+                         ,_2: Basics.round(z)},
+                 rx = $._0,
+                 ry = $._1,
+                 rz = $._2;
+                 var errX = Basics.abs(rx - _v0._0);
+                 var errY = Basics.abs(ry - _v0._1);
+                 var errZ = Basics.abs(rz - z);
+                 return _U.cmp(errX,
+                 errY) > 0 && _U.cmp(errX,
+                 errZ) > 0 ? {ctor: "_Tuple2"
+                             ,_0: 0 - ry - rz
+                             ,_1: ry} : _U.cmp(errY,
+                 errZ) > 0 ? {ctor: "_Tuple2"
+                             ,_0: rx
+                             ,_1: 0 - rx - rz} : {ctor: "_Tuple2"
+                                                 ,_0: rx
+                                                 ,_1: ry};
+              }();}
+         _E.Case($moduleName,
+         "between lines 177 and 184");
+      }();
+   };
+   var distance = F2(function (coord1,
+   coord2) {
+      return function () {
+         var $ = {ctor: "_Tuple2"
+                 ,_0: coord2.x
+                 ,_1: coord2.y},
+         x2 = $._0,
+         y2 = $._1;
+         var $ = {ctor: "_Tuple2"
+                 ,_0: coord1.x
+                 ,_1: coord1.y},
+         x1 = $._0,
+         y1 = $._1;
+         var $ = {ctor: "_Tuple2"
+                 ,_0: 0 - (x1 - y1)
+                 ,_1: 0 - (x2 - y2)},
+         z1 = $._0,
+         z2 = $._1;
+         return List.maximum(_J.toList([Basics.abs(x1 - x2)
+                                       ,Basics.abs(y1 - y2)
+                                       ,Basics.abs(z1 - z2)]));
+      }();
+   });
+   var toTuple = function (hex) {
+      return {ctor: "_Tuple3"
+             ,_0: hex.coord.x
+             ,_1: hex.coord.y
+             ,_2: hex.value};
+   };
+   var SOutlined = function (a) {
+      return {ctor: "SOutlined"
+             ,_0: a};
+   };
+   var SGradient = function (a) {
+      return {ctor: "SGradient"
+             ,_0: a};
+   };
+   var STextured = function (a) {
+      return {ctor: "STextured"
+             ,_0: a};
+   };
+   var SColor = function (a) {
+      return {ctor: "SColor"
+             ,_0: a};
+   };
+   var makeForm = F2(function (shaper,
+   shape) {
+      return function () {
+         switch (shaper.ctor)
+         {case "SColor":
+            return A2(Graphics.Collage.filled,
+              shaper._0,
+              shape);
+            case "SGradient":
+            return A2(Graphics.Collage.gradient,
+              shaper._0,
+              shape);
+            case "SOutlined":
+            return A2(Graphics.Collage.outlined,
+              shaper._0,
+              shape);
+            case "STextured":
+            return A2(Graphics.Collage.textured,
+              shaper._0,
+              shape);}
+         _E.Case($moduleName,
+         "between lines 89 and 95");
+      }();
+   });
+   var HexCoord = F2(function (a,
+   b) {
+      return {_: {},x: a,y: b};
+   });
+   var pixelToHexCoord = F2(function (s,
+   _v9) {
+      return function () {
+         switch (_v9.ctor)
+         {case "_Tuple2":
+            return function () {
+                 var y$ = Basics.toFloat(_v9._1) / s;
+                 var x$ = Basics.toFloat(_v9._0) / (Basics.sqrt(3) * s);
+                 var r = Basics.floor(Basics.toFloat(Basics.floor(y$ - x$ + 1) + Basics.floor(y$ + x$ + 1)) / 3);
+                 var q = Basics.floor(Basics.toFloat(Basics.floor(2 * x$ + 1) - r) / 2);
+                 return A2(HexCoord,q,r);
+              }();}
+         _E.Case($moduleName,
+         "between lines 81 and 85");
+      }();
+   });
+   var neighbors = function (_v13) {
+      return function () {
+         return _J.toList([A2(HexCoord,
+                          _v13.x + 1,
+                          _v13.y)
+                          ,A2(HexCoord,
+                          _v13.x + 1,
+                          _v13.y - 1)
+                          ,A2(HexCoord,_v13.x,_v13.y - 1)
+                          ,A2(HexCoord,_v13.x - 1,_v13.y)
+                          ,A2(HexCoord,
+                          _v13.x - 1,
+                          _v13.y + 1)
+                          ,A2(HexCoord,
+                          _v13.x,
+                          _v13.y + 1)]);
+      }();
+   };
+   var diagonals = function (_v15) {
+      return function () {
+         return _J.toList([A2(HexCoord,
+                          _v15.x + 2,
+                          _v15.y - 1)
+                          ,A2(HexCoord,
+                          _v15.x + 1,
+                          _v15.y - 2)
+                          ,A2(HexCoord,
+                          _v15.x - 1,
+                          _v15.y - 1)
+                          ,A2(HexCoord,
+                          _v15.x - 2,
+                          _v15.y + 1)
+                          ,A2(HexCoord,
+                          _v15.x - 1,
+                          _v15.y + 2)
+                          ,A2(HexCoord,
+                          _v15.x + 1,
+                          _v15.y + 1)]);
+      }();
+   };
+   var line = F2(function (coord1,
+   coord2) {
+      return function () {
+         var $ = {ctor: "_Tuple2"
+                 ,_0: Basics.toFloat(coord2.x)
+                 ,_1: Basics.toFloat(coord2.y)},
+         x2 = $._0,
+         y2 = $._1;
+         var $ = {ctor: "_Tuple2"
+                 ,_0: Basics.toFloat(coord1.x) + 1.0e-6
+                 ,_1: Basics.toFloat(coord1.y) + 1.0e-6},
+         x1 = $._0,
+         y1 = $._1;
+         var $ = {ctor: "_Tuple2"
+                 ,_0: 0 - (x1 - y1)
+                 ,_1: 0 - (x2 - y2)},
+         z1 = $._0,
+         z2 = $._1;
+         var dz = z1 - z2;
+         var dx = x1 - x2;
+         var dy = y1 - y2;
+         var n = Basics.round(List.maximum(A2(List.map,
+         Basics.abs,
+         _J.toList([dx - dy
+                   ,dy - dz
+                   ,dz - dx]))));
+         var f = function (x) {
+            return Basics.toFloat(x) / Basics.toFloat(n);
+         };
+         return List.map(function (_v17) {
+            return function () {
+               switch (_v17.ctor)
+               {case "_Tuple2":
+                  return A2(HexCoord,
+                    _v17._0,
+                    _v17._1);}
+               _E.Case($moduleName,
+               "on line 145, column 25 to 37");
+            }();
+         })(Set.toList(Set.fromList(A2(List.map,
+         function (i) {
+            return hexRound({ctor: "_Tuple2"
+                            ,_0: x1 * f(i) + x2 * (1 - f(i))
+                            ,_1: y1 * f(i) + y2 * (1 - f(i))});
+         },
+         _L.range(0,n)))));
+      }();
+   });
+   var range = F2(function (_v21,
+   n) {
+      return function () {
+         return A2(List.concatMap,
+         function (dx) {
+            return A2(List.map,
+            function (dy) {
+               return A2(HexCoord,
+               _v21.x + dx,
+               _v21.y + dy);
+            },
+            _L.range(A2(Basics.max,
+            0 - n,
+            0 - dx - n),
+            A2(Basics.min,n,0 - dx + n)));
+         },
+         _L.range(0 - n,n));
+      }();
+   });
+   var neighbor = F2(function (_v23,
+   direction) {
+      return function () {
+         return function () {
+            var $ = A2(Maybe.maybe,
+            {ctor: "_Tuple2",_0: 0,_1: 0},
+            Basics.id)(A2(Helpers._op["#"],
+            _J.toList([{ctor: "_Tuple2"
+                       ,_0: 1
+                       ,_1: 0}
+                      ,{ctor: "_Tuple2",_0: 1,_1: -1}
+                      ,{ctor: "_Tuple2",_0: 0,_1: -1}
+                      ,{ctor: "_Tuple2",_0: -1,_1: 0}
+                      ,{ctor: "_Tuple2",_0: -1,_1: 1}
+                      ,{ctor: "_Tuple2"
+                       ,_0: 0
+                       ,_1: 1}]),
+            direction)),
+            dx = $._0,
+            dy = $._1;
+            return A2(HexCoord,
+            _v23.x + dx,
+            _v23.y + dy);
+         }();
+      }();
+   });
+   var ring = F2(function (_v25,
+   r) {
+      return function () {
+         return function () {
+            var h = A2(HexCoord,
+            _v25.x - r,
+            _v25.y + r);
+            return _U.cmp(r,
+            0) < 0 ? _J.toList([]) : A3(List.scanl,
+            F2(function (i,h$) {
+               return A2(neighbor,h$,i);
+            }),
+            h,
+            A2(List.concatMap,
+            function (j) {
+               return A2(List.repeat,r,j);
+            },
+            _L.range(0,5)));
+         }();
+      }();
+   });
+   var Hex = F2(function (a,b) {
+      return {_: {}
+             ,coord: b
+             ,value: a};
+   });
+   var Hexagonal = function (a) {
+      return {ctor: "Hexagonal"
+             ,_0: a};
+   };
+   var hexagonalHexGrid = F2(function (r,
+   a) {
+      return function () {
+         var row = function (y) {
+            return A2(List.map,
+            function (n) {
+               return {_: {}
+                      ,coord: {_: {}
+                              ,x: n - A2(Basics.min,y,r)
+                              ,y: y - r}
+                      ,value: a};
+            },
+            _L.range(0,
+            r * 2 - Basics.abs(r - y)));
+         };
+         return Hexagonal(A2(List.map,
+         function (n) {
+            return row(n);
+         },
+         _L.range(0,2 * r)));
+      }();
+   });
+   var Rectangular = function (a) {
+      return {ctor: "Rectangular"
+             ,_0: a};
+   };
+   var rectangularHexGrid = F2(function (_v27,
+   a) {
+      return function () {
+         switch (_v27.ctor)
+         {case "_Tuple2":
+            return function () {
+                 var row = F2(function (x,y) {
+                    return A2(List.map,
+                    function (n) {
+                       return {_: {}
+                              ,coord: {_: {},x: n,y: y}
+                              ,value: a};
+                    },
+                    _L.range(0 - x,
+                    _v27._0 - 1 - x));
+                 });
+                 var rowPair = function (offset) {
+                    return _J.toList([A2(row,
+                                     offset,
+                                     offset * 2)
+                                     ,A2(row,
+                                     offset,
+                                     offset * 2 + 1)]);
+                 };
+                 return Rectangular(A2(List.concatMap,
+                 function (n) {
+                    return rowPair(n);
+                 },
+                 _L.range(0,
+                 Basics.ceiling(Basics.toFloat(_v27._1) / 2) - 1)));
+              }();}
+         _E.Case($moduleName,
+         "between lines 34 and 36");
+      }();
+   });
+   var toHexList = function (grid) {
+      return function () {
+         switch (grid.ctor)
+         {case "Hexagonal":
+            return grid._0;
+            case "Rectangular":
+            return grid._0;}
+         _E.Case($moduleName,
+         "between lines 46 and 48");
+      }();
+   };
+   var showHexGrid = F3(function (r,
+   dict,
+   grid) {
+      return function () {
+         switch (grid.ctor)
+         {case "Hexagonal":
+            return function () {
+                 var h = Basics.round(r * Basics.toFloat(List.length(grid._0)) * 2.5 + r);
+                 var w = function () {
+                    var w$ = Basics.round(Basics.sqrt(3) / 2 * r);
+                    return 2 * (w$ + List.length(grid._0) * w$);
+                 }();
+                 var position = F2(function (_v37,
+                 r) {
+                    return function () {
+                       return Graphics.Collage.move({ctor: "_Tuple2"
+                                                    ,_0: Basics.sqrt(3) * r * Basics.toFloat(_v37.x) + Basics.sqrt(3) / 2 * r * Basics.toFloat(_v37.y)
+                                                    ,_1: -1.5 * r * Basics.toFloat(_v37.y)});
+                    }();
+                 });
+                 var drawHex = F3(function (coord,
+                 r,
+                 v) {
+                    return A2(position,
+                    coord,
+                    r)(Graphics.Collage.rotate(Basics.degrees(30))(makeForm(A3(Dict.findWithDefault,
+                    SOutlined(Graphics.Collage.defaultLine),
+                    v,
+                    dict))(Graphics.Collage.ngon(6)(r))));
+                 });
+                 var hexes = Graphics.Collage.group(A2(List.map,
+                 function (hex) {
+                    return A3(drawHex,
+                    hex.coord,
+                    r,
+                    hex.value);
+                 },
+                 List.concat(grid._0)));
+                 return A3(Graphics.Collage.collage,
+                 w,
+                 h,
+                 _J.toList([hexes]));
+              }();
+            case "Rectangular":
+            return Graphics.Element.flow(Graphics.Element.down)(List.map(Text.asText)(List.map(function (row) {
+                 return A2(List.map,
+                 toTuple,
+                 row);
+              })(grid._0)));}
+         _E.Case($moduleName,
+         "between lines 57 and 65");
+      }();
+   });
+   var showHexGrid2 = F5(function (r,
+   w,
+   h,
+   dict,
+   grid) {
+      return function () {
+         switch (grid.ctor)
+         {case "Hexagonal":
+            return function () {
+                 var position = F2(function (_v42,
+                 r) {
+                    return function () {
+                       return Graphics.Collage.move({ctor: "_Tuple2"
+                                                    ,_0: Basics.sqrt(3) * r * Basics.toFloat(_v42.x) + Basics.sqrt(3) / 2 * r * Basics.toFloat(_v42.y)
+                                                    ,_1: -1.5 * r * Basics.toFloat(_v42.y)});
+                    }();
+                 });
+                 var drawHex = F3(function (coord,
+                 r,
+                 v) {
+                    return A2(position,
+                    coord,
+                    r)(Graphics.Collage.rotate(Basics.degrees(30))(makeForm(A3(Dict.findWithDefault,
+                    SOutlined(Graphics.Collage.defaultLine),
+                    v,
+                    dict))(Graphics.Collage.ngon(6)(r))));
+                 });
+                 var hexes = Graphics.Collage.group(A2(List.map,
+                 function (hex) {
+                    return A3(drawHex,
+                    hex.coord,
+                    r,
+                    hex.value);
+                 },
+                 List.concat(grid._0)));
+                 return A3(Graphics.Collage.collage,
+                 w,
+                 h,
+                 _J.toList([hexes]));
+              }();
+            case "Rectangular":
+            return Graphics.Element.flow(Graphics.Element.down)(List.map(Text.asText)(List.map(function (row) {
+                 return A2(List.map,
+                 toTuple,
+                 row);
+              })(grid._0)));}
+         _E.Case($moduleName,
+         "between lines 69 and 78");
+      }();
+   });
+   var inGrid = F2(function (_v44,
+   grid) {
+      return function () {
+         return function () {
+            switch (grid.ctor)
+            {case "Hexagonal":
+               return function () {
+                    var radius = List.length(grid._0) / 2 | 0;
+                    var offset = radius * 2 - Basics.abs(_v44.y);
+                    return _U.cmp(_v44.y,
+                    0 - radius) < 0 ? false : _U.cmp(_v44.y,
+                    radius) > 0 ? false : _U.cmp(_v44.x + radius + A2(Basics.min,
+                    0,
+                    _v44.y),
+                    0) < 0 ? false : _U.cmp(_v44.x,
+                    offset - radius - A2(Basics.min,
+                    0,
+                    _v44.y)) > 0 ? false : true;
+                 }();
+               case "Rectangular":
+               return function () {
+                    var offset = _v44.y / 2 | 0;
+                    var w = List.length(List.head(grid._0));
+                    var h = List.length(grid._0);
+                    return _U.cmp(_v44.y,
+                    0) < 0 ? false : _U.cmp(_v44.y,
+                    h) > -1 ? false : _U.cmp(_v44.x,
+                    w) > -1 ? false : _U.cmp(_v44.x + offset,
+                    0) < 0 ? false : _U.cmp(_v44.x + offset,
+                    w) > -1 ? false : true;
+                 }();}
+            _E.Case($moduleName,
+            "between lines 98 and 116");
+         }();
+      }();
+   });
+   var insert = F3(function (_v49,
+   z,
+   grid) {
+      return function () {
+         return Basics.not(A2(inGrid,
+         _v49,
+         grid)) ? Maybe.Nothing : function () {
+            switch (grid.ctor)
+            {case "Hexagonal":
+               return function () {
+                    var radius = List.length(grid._0) / 2 | 0;
+                    var row = List.head(List.drop(_v49.y + radius)(grid._0));
+                    var row$ = A3(Helpers.replace,
+                    _v49.x + radius + A2(Basics.min,
+                    0,
+                    _v49.y),
+                    A2(Hex,
+                    z,
+                    A2(HexCoord,_v49.x,_v49.y)),
+                    row);
+                    return Maybe.Just(Hexagonal(A3(Helpers.replace,
+                    _v49.y + radius,
+                    row$,
+                    grid._0)));
+                 }();
+               case "Rectangular":
+               return Maybe.Just(grid);}
+            _E.Case($moduleName,
+            "between lines 189 and 197");
+         }();
+      }();
+   });
+   var insertIfPossible = F3(function (_v54,
+   z,
+   grid) {
+      return function () {
+         return Basics.not(A2(inGrid,
+         _v54,
+         grid)) ? grid : function () {
+            switch (grid.ctor)
+            {case "Hexagonal":
+               return function () {
+                    var radius = List.length(grid._0) / 2 | 0;
+                    var row = List.head(List.drop(_v54.y + radius)(grid._0));
+                    var row$ = A3(Helpers.replace,
+                    _v54.x + radius + A2(Basics.min,
+                    0,
+                    _v54.y),
+                    A2(Hex,
+                    z,
+                    A2(HexCoord,_v54.x,_v54.y)),
+                    row);
+                    return Hexagonal(A3(Helpers.replace,
+                    _v54.y + radius,
+                    row$,
+                    grid._0));
+                 }();
+               case "Rectangular":
+               return grid;}
+            _E.Case($moduleName,
+            "between lines 200 and 205");
+         }();
+      }();
+   });
+   _elm.HexGrid.values = {_op: _op
+                         ,rectangularHexGrid: rectangularHexGrid
+                         ,hexagonalHexGrid: hexagonalHexGrid
+                         ,toHexList: toHexList
+                         ,toTuple: toTuple
+                         ,showHexGrid: showHexGrid
+                         ,showHexGrid2: showHexGrid2
+                         ,pixelToHexCoord: pixelToHexCoord
+                         ,makeForm: makeForm
+                         ,inGrid: inGrid
+                         ,neighbors: neighbors
+                         ,diagonals: diagonals
+                         ,distance: distance
+                         ,line: line
+                         ,range: range
+                         ,ring: ring
+                         ,neighbor: neighbor
+                         ,hexRound: hexRound
+                         ,insert: insert
+                         ,insertIfPossible: insertIfPossible
+                         ,Rectangular: Rectangular
+                         ,Hexagonal: Hexagonal
+                         ,SColor: SColor
+                         ,STextured: STextured
+                         ,SGradient: SGradient
+                         ,SOutlined: SOutlined
+                         ,Hex: Hex
+                         ,HexCoord: HexCoord};
+   return _elm.HexGrid.values;
+};Elm.Helpers = Elm.Helpers || {};
+Elm.Helpers.make = function (_elm) {
+   _elm.Helpers = _elm.Helpers || {};
+   if (_elm.Helpers.values)
+   return _elm.Helpers.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _E = _N.Error.make(_elm),
+   _J = _N.JavaScript.make(_elm),
+   $moduleName = "Helpers";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Prelude = Elm.Prelude.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   _op["#"] = F2(function (xs,n) {
+      return function () {
+         switch (xs.ctor)
+         {case "::": return _U.cmp(n,
+              0) < 0 ? Maybe.Nothing : _U.eq(n,
+              0) ? Maybe.Just(xs._0) : A2(_op["#"],
+              xs._1,
+              n - 1);
+            case "[]":
+            return Maybe.Nothing;}
+         _E.Case($moduleName,
+         "between lines 13 and 17");
+      }();
+   });
+   var splitAt = F2(function (n,
+   xs) {
+      return {ctor: "_Tuple2"
+             ,_0: A2(List.take,n,xs)
+             ,_1: A2(List.drop,n,xs)};
+   });
+   var replace = F3(function (n,
+   x,
+   xs) {
+      return _U.cmp(n,
+      0) < 0 || _U.cmp(n,
+      List.length(xs)) > 0 ? xs : function () {
+         var $ = A2(splitAt,n,xs),
+         ys = $._0,
+         zs = $._1;
+         var zs$ = A2(List.drop,1,zs);
+         return _L.append(ys,
+         {ctor: "::",_0: x,_1: zs$});
+      }();
+   });
+   _elm.Helpers.values = {_op: _op
+                         ,replace: replace
+                         ,splitAt: splitAt};
+   return _elm.Helpers.values;
+};</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Demo)</script><noscript></noscript></body></html>
