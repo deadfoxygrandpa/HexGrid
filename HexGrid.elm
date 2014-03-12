@@ -61,7 +61,8 @@ showHexGrid r dict grid =
                               w = let w' = round <| (sqrt 3) / 2 * r
                                   in 2 * (w' + (length hs) * w')
                               h = round <| r * (toFloat <| length hs) * 2.5 + r
-                          in  collage w h <| map (\hex -> drawHex hex.coord r hex.value) (concat hs)
+                              hexes = group <| map (\hex -> drawHex hex.coord r hex.value) (concat hs)
+                          in  collage w h [hexes]
 
 {-| Given a hex size, and an onscreen pixel in (x, y) format, return the coordinate of the `Hex` this pixel is inside.
 This is useful for mouse interaction. Assumes the HexGrid is visually centered in the window. -}
