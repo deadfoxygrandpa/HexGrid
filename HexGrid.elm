@@ -64,6 +64,16 @@ showHexGrid r dict grid =
                               hexes = group <| map (\hex -> drawHex hex.coord r hex.value) (concat hs)
                           in  collage w h [hexes]
 
+showHexGrid2 : Float -> Int -> Int -> Dict.Dict comparable Shaper -> HexGrid comparable -> Element
+showHexGrid2 r w h dict grid =
+    case grid of
+        Rectangular hs -> flow down . map asText . map (\row -> map toTuple row) <| hs
+        Hexagonal   hs -> let position {x, y} r = move (((sqrt 3) * r * (toFloat x) + ((sqrt 3)/2) * r * (toFloat y)), (-1.5 * r * (toFloat y)))
+                              drawHex coord r v = position coord r . rotate (degrees 30) . makeForm (Dict.findWithDefault (SOutlined defaultLine) v dict) . ngon 6 <| r
+                              hexes = group <| map (\hex -> drawHex hex.coord r hex.value) (concat hs)
+                          in  collage w h [hexes]
+
+
 {-| Given a hex size, and an onscreen pixel in (x, y) format, return the coordinate of the `Hex` this pixel is inside.
 This is useful for mouse interaction. Assumes the HexGrid is visually centered in the window. -}
 pixelToHexCoord : Float -> (Int, Int) -> HexCoord
