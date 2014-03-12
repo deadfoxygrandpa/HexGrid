@@ -24,14 +24,15 @@ styleGuide = Dict.fromList [ (0, SOutlined defaultLine)
 
 (txt2, num2) = Input.field "10"
 
-scene (x, y) (w, h) selector f txtin s txt2in s2 =
+gridsignal = (flip hexagonalHexGrid) 0 <~ gridSizesignal
+gridSizesignal = maybe 10 id <~ (String.toInt <~ num2)
+
+scene (x, y) (w, h) selector f txtin s txt2in gridSize grid =
     let n' = maybe 3 id <| String.toInt s
-        gridSize = maybe 10 id <| String.toInt s2
         hexSize = min (100000) ((1 * (toFloat h)) / (3 * (toFloat gridSize) + 2))
-        grid = hexagonalHexGrid gridSize 0
-        grid' = foldr (\coord g -> insertIfPossible coord 2 g) grid <| f n' hovered
-        grid'' = insertIfPossible hovered 1 grid'
-        griddle = showHexGrid hexSize styleGuide <| grid''
+        --grid' = foldr (\coord g -> insertIfPossible coord 2 g) griddlerid <| f n' hovered
+        --grid'' = insertIfPossible hovered 1 grid'
+        --griddle = showHexGrid hexSize styleGuide <| grid''
         pos = (x - (w `div` 2), y - (h `div` 2))
         hovered = pixelToHexCoord hexSize pos
         panel = flow down [ text . bold . toText <| "control panel:"
@@ -41,10 +42,10 @@ scene (x, y) (w, h) selector f txtin s txt2in s2 =
                            , plainText "hex coord your mouse is at:"
                            , asText hovered
                            ]
-    in  layers [ container w h middle griddle
+    in  layers [ container w h middle empty --griddle
                , color darkPurple  <| spacer (widthOf panel + 5) (heightOf panel + 5)
                , color lightPurple <| spacer (widthOf panel + 3) (heightOf panel + 3)
                , container (widthOf panel + 5) (heightOf panel + 5) middle panel
                ]
 
-main = scene <~ Mouse.position ~ Window.dimensions ~ droppa ~ func ~ txt ~ num ~ txt2 ~ num2
+main = scene <~ Mouse.position ~ Window.dimensions ~ droppa ~ func ~ txt ~ num ~ txt2 ~ gridSizesignal ~ gridsignal
