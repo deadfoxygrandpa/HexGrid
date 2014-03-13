@@ -10,7 +10,6 @@ import open HexGrid
 
 styleGuide : Int -> Shaper
 styleGuide n = case n of
-                    0 -> SOutlined defaultLine
                     1 -> SColor blue
                     2 -> SColor red
                     _ -> SOutlined defaultLine
