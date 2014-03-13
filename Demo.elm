@@ -12,7 +12,7 @@ styleGuide : Int -> Float -> Form
 styleGuide n =
     let colorize = case n of
                     1 -> filled darkOrange
-                    2 -> filled <| rgba 0 0 0 0.55
+                    2 -> filled <| rgba 0 0 0 0.4
                     _ -> filled <| rgba 0 0 0 0.5
         shape    = case n of
                     1 -> \_ -> toForm . plainText <| "welp,"
@@ -21,11 +21,12 @@ styleGuide n =
     in shape
 
 
-(droppa, func) = Input.dropDown [ ("None", (\_ _ -> []))
+(droppa, func) = Input.dropDown [ ("Diagonals", (\_ -> diagonals))
                                 , ("Ring", flip ring)
                                 , ("Range", flip range)
-                                , ("Diagonals", (\_ -> diagonals))
-                                , ("Neighbors", (\_ -> neighbors))]
+                                , ("Neighbors", (\_ -> neighbors))
+                                , ("None", (\_ _ -> []))
+                                ]
 (txt, num) = Input.field "3"
 
 (txt2, num2) = Input.field "10"
