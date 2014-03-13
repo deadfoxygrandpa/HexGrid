@@ -63,10 +63,16 @@ toHexListTests = testUnaryFunction toHexList
 
 showHexGridTests : [Test]
 showHexGridTests =
-    let style n = case n of
-                    1 -> SColor blue
-                    2 -> SColor red
-                    _ -> SOutlined defaultLine in
+    let style n =
+        let colorize = case n of
+                        1 -> filled darkOrange
+                        2 -> filled <| rgba 0 0 0 0.4
+                        _ -> filled <| rgba 0 0 0 0.5
+            shape    = case n of
+                        1 -> \_ -> toForm . plainText <| "welp,"
+                        2 -> rotate (degrees 30) . colorize . ngon 6
+                        _ -> colorize . square--rotate (degrees 30) . colorize . ngon 6
+        in shape in
     [ test "showHexGrid - Rectangular" <|
         assertEqual (show <| showHexGrid 1 style <| rectangularHexGrid (1, 1) 0) "<internal structure>"
     , test "showHexGrid - Hexagonal" <|
