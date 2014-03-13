@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="UTF-8"><title>Demo</title><script type="text/javascript" src="elm-runtime.js"></script><script type="text/javascript">Elm.Demo = Elm.Demo || {};
+<html><head><meta charset="UTF-8"><title>Demo</title><script type="text/javascript" src="file:///C:\Users\aneslusan\AppData\Roaming\cabal\Elm-0.11\elm-runtime.js"></script><script type="text/javascript">Elm.Demo = Elm.Demo || {};
 Elm.Demo.make = function (_elm) {
    _elm.Demo = _elm.Demo || {};
    if (_elm.Demo.values)
@@ -32,11 +32,11 @@ Elm.Demo.make = function (_elm) {
    var Time = Elm.Time.make(_elm);
    var Window = Elm.Window.make(_elm);
    var _op = {};
-   var $ = Graphics.Input.field("10"),
+   var $ = Graphics.Input.field("5"),
    txt2 = $._0,
    num2 = $._1;
    var gridSizesignal = A2(Signal._op["<~"],
-   A2(Maybe.maybe,10,Basics.id),
+   A2(Maybe.maybe,5,Basics.id),
    A2(Signal._op["<~"],
    String.toInt,
    num2));
@@ -45,7 +45,7 @@ Elm.Demo.make = function (_elm) {
    HexGrid.hexagonalHexGrid,
    0),
    gridSizesignal);
-   var $ = Graphics.Input.field("3"),
+   var $ = Graphics.Input.field("2"),
    txt = $._0,
    num = $._1;
    var $ = Graphics.Input.dropDown(_J.toList([{ctor: "_Tuple2"
@@ -166,7 +166,7 @@ Elm.Demo.make = function (_elm) {
                                    ,plainText$("hex coord your mouse is at:")
                                    ,plainText$(Prelude.show(hovered))]));
                          var n$ = A2(Maybe.maybe,
-                         3,
+                         2,
                          Basics.id)(String.toInt(s));
                          var grid$ = A2(List.foldr,
                          F2(function (coord,g) {
@@ -198,10 +198,10 @@ Elm.Demo.make = function (_elm) {
                                                                   panel)]));
                       }();}
                  _E.Case($moduleName,
-                 "between lines 38 and 58");
+                 "between lines 38 and 57");
               }();}
          _E.Case($moduleName,
-         "between lines 38 and 58");
+         "between lines 38 and 57");
       }();
    });
    var main = A2(Signal._op["~"],
