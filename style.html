@@ -131,6 +131,9 @@ Elm.Demo.make = function (_elm) {
                  switch (_v12.ctor)
                  {case "_Tuple2":
                     return function () {
+                         var plainText$ = function ($) {
+                            return Text.text(Text.color(Color.lightOrange)(Text.toText($)));
+                         };
                          var pos = {ctor: "_Tuple2"
                                    ,_0: _v12._0 - (_v13._0 / 2 | 0)
                                    ,_1: _v12._1 - (_v13._1 / 2 | 0)};
@@ -142,25 +145,33 @@ Elm.Demo.make = function (_elm) {
                          pos);
                          var panel = A2(Graphics.Element.flow,
                          Graphics.Element.down,
-                         _J.toList([Text.text(Text.bold(Text.toText("control panel:")))
+                         _J.toList([Text.text(Text.color(Color.lightOrange)(Text.bold(Text.toText("control panel:"))))
                                    ,Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
-                                   Graphics.Element.width(100),
-                                   _J.toList([Text.plainText("effect:")
-                                             ,selector])))
-                                   ,Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
-                                   Graphics.Element.width(100),
-                                   _J.toList([Text.plainText("effect size: ")
+                                   A2(Graphics.Element.size,
+                                   100,
+                                   20),
+                                   _J.toList([plainText$("effect:")
                                              ,A2(Graphics.Element.color,
-                                             Color.lightGreen,
+                                             Color.lightOrange,
+                                             selector)])))
+                                   ,Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
+                                   A2(Graphics.Element.size,
+                                   100,
+                                   20),
+                                   _J.toList([plainText$("effect size: ")
+                                             ,A2(Graphics.Element.color,
+                                             Color.lightOrange,
                                              txtin)])))
                                    ,Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
-                                   Graphics.Element.width(100),
-                                   _J.toList([Text.plainText("grid size: ")
+                                   A2(Graphics.Element.size,
+                                   100,
+                                   20),
+                                   _J.toList([plainText$("grid size: ")
                                              ,A2(Graphics.Element.color,
-                                             Color.lightYellow,
+                                             Color.lightOrange,
                                              txt2in)])))
-                                   ,Text.plainText("hex coord your mouse is at:")
-                                   ,Text.asText(hovered)]));
+                                   ,plainText$("hex coord your mouse is at:")
+                                   ,plainText$(Prelude.show(hovered))]));
                          var n$ = A2(Maybe.maybe,
                          3,
                          Basics.id)(String.toInt(s));
@@ -184,10 +195,10 @@ Elm.Demo.make = function (_elm) {
                                                                   _v13._1,
                                                                   Graphics.Element.middle,
                                                                   griddle))
-                                                                  ,Graphics.Element.color(Color.darkPurple)(A2(Graphics.Element.spacer,
+                                                                  ,Graphics.Element.color(Color.darkOrange)(A2(Graphics.Element.spacer,
                                                                   Graphics.Element.widthOf(panel) + 5,
                                                                   Graphics.Element.heightOf(panel) + 5))
-                                                                  ,Graphics.Element.color(Color.lightPurple)(A2(Graphics.Element.spacer,
+                                                                  ,Graphics.Element.color(Color.black)(A2(Graphics.Element.spacer,
                                                                   Graphics.Element.widthOf(panel) + 3,
                                                                   Graphics.Element.heightOf(panel) + 3))
                                                                   ,A4(Graphics.Element.container,
@@ -197,10 +208,10 @@ Elm.Demo.make = function (_elm) {
                                                                   panel)]));
                       }();}
                  _E.Case($moduleName,
-                 "between lines 38 and 56");
+                 "between lines 38 and 57");
               }();}
          _E.Case($moduleName,
-         "between lines 38 and 56");
+         "between lines 38 and 57");
       }();
    });
    var main = A2(Signal._op["~"],
