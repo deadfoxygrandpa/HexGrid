@@ -8,11 +8,12 @@ import Dict
 
 import open HexGrid
 
-styleGuide : Dict.Dict Int Shaper
-styleGuide = Dict.fromList [ (0, SOutlined defaultLine)
-                           , (1, SColor blue)
-                           , (2, SColor red)
-                           ]
+styleGuide : Int -> Shaper
+styleGuide n = case n of
+                    0 -> SOutlined defaultLine
+                    1 -> SColor blue
+                    2 -> SColor red
+                    _ -> SOutlined defaultLine
 
 
 (droppa, func) = Input.dropDown [ ("None", (\_ _ -> []))
@@ -30,9 +31,9 @@ gridSizesignal = maybe 10 id <~ (String.toInt <~ num2)
 scene (x, y) (w, h) selector f txtin s txt2in gridSize grid =
     let n' = maybe 3 id <| String.toInt s
         hexSize = min (100000) ((1 * (toFloat h)) / (3 * (toFloat gridSize) + 2))
-        --grid' = foldr (\coord g -> insertIfPossible coord 2 g) griddlerid <| f n' hovered
-        --grid'' = insertIfPossible hovered 1 grid'
-        --griddle = showHexGrid hexSize styleGuide <| grid''
+        grid' = foldr (\coord g -> insertIfPossible coord 2 g) griddlerid <| f n' hovered
+        grid'' = insertIfPossible hovered 1 grid'
+        griddle = showHexGrid hexSize styleGuide <| grid''
         pos = (x - (w `div` 2), y - (h `div` 2))
         hovered = pixelToHexCoord hexSize pos
         panel = flow down [ text . bold . toText <| "control panel:"
@@ -42,7 +43,7 @@ scene (x, y) (w, h) selector f txtin s txt2in gridSize grid =
                            , plainText "hex coord your mouse is at:"
                            , asText hovered
                            ]
-    in  layers [ container w h middle empty --griddle
+    in  layers [ container w h middle griddle
                , color darkPurple  <| spacer (widthOf panel + 5) (heightOf panel + 5)
                , color lightPurple <| spacer (widthOf panel + 3) (heightOf panel + 3)
                , container (widthOf panel + 5) (heightOf panel + 5) middle panel

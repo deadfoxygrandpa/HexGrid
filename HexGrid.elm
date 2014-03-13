@@ -1,8 +1,8 @@
 module HexGrid where
 
 {-| A library for creating and working with Hexagonal grids. The grids may be either rectangular or hexagonal in shape.
-A HexGrid must be of type `HexGrid comparable` which means each Hex must contain a value of any comparable type. This
-includes `Int`, `Float`, `Time`, `Char`, `String`, and tuples or lists of comparable types.
+A HexGrid must be of type `HexGrid a` which means each Hex must contain a value of any a type. This
+includes `Int`, `Float`, `Time`, `Char`, `String`, and tuples or lists of a types.
 
 Currently all hexes are pointy-top.
 
@@ -18,46 +18,45 @@ Currently all hexes are pointy-top.
 -}
 
 import Set
-import Dict
 
 import open Helpers
 
-data HexGrid comparable = Rectangular [[Hex comparable]] | Hexagonal [[Hex comparable]]
-type Hex comparable     = {value : comparable, coord : HexCoord}
+data HexGrid a = Rectangular [[Hex a]] | Hexagonal [[Hex a]]
+type Hex a     = {value : a, coord : HexCoord}
 type HexCoord  = {x : Int, y : Int}
 
 data Shaper = SColor Color | STextured String | SGradient Gradient | SOutlined LineStyle
 
 {-| Create an empty rectangular hex grid -}
-rectangularHexGrid : (Int, Int) -> comparable -> HexGrid comparable
+rectangularHexGrid : (Int, Int) -> a -> HexGrid a
 rectangularHexGrid (w, h) a =
     let row x y        = map (\n -> {value = a, coord = {x = n, y = y}}) [0-x..w - 1 - x]
         rowPair offset = [row offset (offset * 2), row offset (offset * 2 + 1)]
     in  Rectangular <| concatMap (\n -> rowPair n) [0..(ceiling <| (toFloat h) / 2) - 1]
 
 {-| Create an empty hexagonal hex grid -}
-hexagonalHexGrid : Int -> comparable -> HexGrid comparable
+hexagonalHexGrid : Int -> a -> HexGrid a
 hexagonalHexGrid r a =
     let row y = map (\n -> {value = a, coord = {x = n - (min y r), y = y - r}}) [0..r*2 - (abs (r - y))]
     in  Hexagonal <| map (\n -> row n) [0..2*r]
 
-toHexList : HexGrid comparable -> [[Hex comparable]]
+toHexList : HexGrid a -> [[Hex a]]
 toHexList grid =
     case grid of
         Rectangular hs -> hs
         Hexagonal   hs -> hs
 
-toTuple : Hex comparable -> (Int, Int, comparable)
+toTuple : Hex a -> (Int, Int, a)
 toTuple hex = (hex.coord.x, hex.coord.y, hex.value)
 
 {-| Given a hex size in pixels, a Dict mapping hex values to Shaper types, and a HexGrid,
 draw the HexGrid as a visual Element -}
-showHexGrid : Float -> Dict.Dict comparable Shaper -> HexGrid comparable -> Element
-showHexGrid r dict grid =
+showHexGrid : Float -> (a -> Shaper) -> HexGrid a -> Element
+showHexGrid r lookup grid =
     case grid of
         Rectangular hs -> flow down . map asText . map (\row -> map toTuple row) <| hs
         Hexagonal   hs -> let position {x, y} r = move (((sqrt 3) * r * (toFloat x) + ((sqrt 3)/2) * r * (toFloat y)), (-1.5 * r * (toFloat y)))
-                              drawHex coord r v = position coord r . rotate (degrees 30) . makeForm (Dict.findWithDefault (SOutlined defaultLine) v dict) . ngon 6 <| r
+                              drawHex coord r v = position coord r . rotate (degrees 30) . makeForm (lookup v) . ngon 6 <| r
                               w = let w' = round <| (sqrt 3) / 2 * r
                                   in 2 * (w' + (length hs) * w')
                               h = round <| r * (toFloat <| length hs) * 2.5 + r
@@ -83,7 +82,7 @@ makeForm shaper shape =
         SOutlined l -> outlined l shape
 
 {-| Tests a `HexCoord` to see if it is inside the `HexGrid` -}
-inGrid : HexCoord -> HexGrid comparable -> Bool
+inGrid : HexCoord -> HexGrid a -> Bool
 inGrid {x, y} grid =
     case grid of
         Rectangular hs -> let h = length hs
@@ -174,7 +173,7 @@ hexRound (x, y) =
            | otherwise                  -> (rx, ry)
 
 {-| Replace the value of the `Hex` at a given `HexCoord` -}
-insert : HexCoord -> comparable -> HexGrid comparable -> Maybe (HexGrid comparable)
+insert : HexCoord -> a -> HexGrid a -> Maybe (HexGrid a)
 insert ({x, y} as coord) z grid = if not <| inGrid coord grid then Nothing else
     case grid of
         Rectangular hs -> Just grid
@@ -185,7 +184,7 @@ insert ({x, y} as coord) z grid = if not <| inGrid coord grid then Nothing else
 
 {-| Like `insert`, but returns the original grid if given an invalid `HexCoord` instead of wrapping the result
 in a `Maybe` type. -}
-insertIfPossible : HexCoord -> comparable -> HexGrid comparable -> HexGrid comparable
+insertIfPossible : HexCoord -> a -> HexGrid a -> HexGrid a
 insertIfPossible ({x, y} as coord) z grid = if not <| inGrid coord grid then grid else
     case grid of
         Rectangular hs -> grid
