@@ -8,11 +8,17 @@ import Dict
 
 import open HexGrid
 
-styleGuide : Int -> Shaper
-styleGuide n = case n of
-                    1 -> SColor blue
-                    2 -> SColor red
-                    _ -> SOutlined defaultLine
+styleGuide : Int -> Float -> Form
+styleGuide n =
+    let colorize = case n of
+                    1 -> filled darkOrange
+                    2 -> filled <| rgba 0 0 0 0.55
+                    _ -> filled <| rgba 0 0 0 0.5
+        shape    = case n of
+                    1 -> \_ -> toForm . plainText <| "welp,"
+                    2 -> rotate (degrees 30) . colorize . ngon 6
+                    _ -> colorize . square--rotate (degrees 30) . colorize . ngon 6
+    in shape
 
 
 (droppa, func) = Input.dropDown [ ("None", (\_ _ -> []))
@@ -42,7 +48,7 @@ scene (x, y) (w, h) selector f txtin s txt2in gridSize grid =
                            , plainText "hex coord your mouse is at:"
                            , asText hovered
                            ]
-    in  layers [ container w h middle griddle
+    in  layers [ color lightOrange <| container w h middle griddle
                , color darkPurple  <| spacer (widthOf panel + 5) (heightOf panel + 5)
                , color lightPurple <| spacer (widthOf panel + 3) (heightOf panel + 3)
                , container (widthOf panel + 5) (heightOf panel + 5) middle panel
