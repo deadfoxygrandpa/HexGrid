@@ -51,12 +51,12 @@ toTuple hex = (hex.coord.x, hex.coord.y, hex.value)
 
 {-| Given a hex size in pixels, a Dict mapping hex values to Shaper types, and a HexGrid,
 draw the HexGrid as a visual Element -}
-showHexGrid : Float -> (a -> Shaper) -> HexGrid a -> Element
-showHexGrid r lookup grid =
+showHexGrid : Float -> (a -> Float -> Form) -> HexGrid a -> Element
+showHexGrid r former grid =
     case grid of
         Rectangular hs -> flow down . map asText . map (\row -> map toTuple row) <| hs
         Hexagonal   hs -> let position {x, y} r = move (((sqrt 3) * r * (toFloat x) + ((sqrt 3)/2) * r * (toFloat y)), (-1.5 * r * (toFloat y)))
-                              drawHex coord r v = position coord r . rotate (degrees 30) . makeForm (lookup v) . ngon 6 <| r
+                              drawHex coord r v = position coord r . former v <| r
                               w = let w' = round <| (sqrt 3) / 2 * r
                                   in 2 * (w' + (length hs) * w')
                               h = round <| r * (toFloat <| length hs) * 2.5 + r
@@ -72,14 +72,6 @@ pixelToHexCoord s (x, y) =
         r = floor <| toFloat((floor <| (y' - x') + 1) + (floor <| (y' + x') + 1))/3
         q = floor <| toFloat((floor <| (2 * x') + 1) - r)/2
     in HexCoord q r
-
-makeForm : Shaper -> Shape -> Form
-makeForm shaper shape =
-    case shaper of
-        SColor c    -> filled c shape
-        STextured s -> textured s shape
-        SGradient g -> gradient g shape
-        SOutlined l -> outlined l shape
 
 {-| Tests a `HexCoord` to see if it is inside the `HexGrid` -}
 inGrid : HexCoord -> HexGrid a -> Bool
