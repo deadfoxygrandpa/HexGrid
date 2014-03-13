@@ -63,11 +63,10 @@ toHexListTests = testUnaryFunction toHexList
 
 showHexGridTests : [Test]
 showHexGridTests =
-    let style = Dict.fromList
-                    [ (0, SOutlined defaultLine)
-                    , (1, SColor blue)
-                    , (2, SColor red)
-                    ] in
+    let style n = case n of
+                    1 -> SColor blue
+                    2 -> SColor red
+                    _ -> SOutlined defaultLine in
     [ test "showHexGrid - Rectangular" <|
         assertEqual (show <| showHexGrid 1 style <| rectangularHexGrid (1, 1) 0) "<internal structure>"
     , test "showHexGrid - Hexagonal" <|
