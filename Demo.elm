@@ -27,15 +27,15 @@ styleGuide n =
                                 , ("Neighbors", (\_ -> neighbors))
                                 , ("None", (\_ _ -> []))
                                 ]
-(txt, num) = Input.field "3"
+(txt, num) = Input.field "2"
 
-(txt2, num2) = Input.field "10"
+(txt2, num2) = Input.field "5"
 
 gridsignal = (flip hexagonalHexGrid) 0 <~ gridSizesignal
-gridSizesignal = maybe 10 id <~ (String.toInt <~ num2)
+gridSizesignal = maybe 5 id <~ (String.toInt <~ num2)
 
 scene (x, y) (w, h) selector f txtin s txt2in gridSize grid =
-    let n' = maybe 3 id <| String.toInt s
+    let n' = maybe 2 id <| String.toInt s
         hexSize = min (100000) ((1 * (toFloat h)) / (3 * (toFloat gridSize) + 2))
         grid' = foldr (\coord g -> insertIfPossible coord 2 g) grid <| f n' hovered
         grid'' = insertIfPossible hovered 1 grid'
@@ -43,7 +43,8 @@ scene (x, y) (w, h) selector f txtin s txt2in gridSize grid =
         pos = (x - (w `div` 2), y - (h `div` 2))
         hovered = pixelToHexCoord hexSize pos
         plainText' = text . Text.color darkOrange . toText
-        panel = flow down [ text . Text.color darkOrange . bold . toText <| "control panel:"
+        panel = flow down [ color darkOrange <| container 200 30 midLeft <| text . bold . toText <| "control panel:"
+                           , spacer 2 2
                            , flow right <| map (size 100 20) [plainText' "effect:", color darkOrange selector]
                            , flow right <| map (size 100 20) [plainText' "effect size: ", color darkOrange txtin]
                            , flow right <| map (size 100 20) [plainText' "grid size: ", color darkOrange txt2in]
@@ -51,7 +52,6 @@ scene (x, y) (w, h) selector f txtin s txt2in gridSize grid =
                            , plainText' <| show  hovered
                            ]
     in  layers [ color black <| container w h middle griddle
-               , color darkOrange  <| spacer (widthOf panel + 5) (heightOf panel + 5)
                , color black <| spacer (widthOf panel + 3) (heightOf panel + 3)
                , container (widthOf panel + 5) (heightOf panel + 5) middle panel
                ]
