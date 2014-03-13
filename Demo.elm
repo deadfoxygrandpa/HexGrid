@@ -12,12 +12,12 @@ styleGuide : Int -> Float -> Form
 styleGuide n =
     let colorize = case n of
                     1 -> filled darkOrange
-                    2 -> filled <| rgba 0 0 0 0.4
-                    _ -> filled <| rgba 0 0 0 0.5
+                    2 -> filled <| rgba 0 0 0 1
+                    _ -> filled <| rgba 0 0 0 1
         shape    = case n of
-                    1 -> \_ -> toForm . plainText <| "welp,"
+                    1 -> scale 0.5 . colorize . circle
                     2 -> rotate (degrees 30) . colorize . ngon 6
-                    _ -> colorize . square--rotate (degrees 30) . colorize . ngon 6
+                    _ -> colorize . square
     in shape
 
 
