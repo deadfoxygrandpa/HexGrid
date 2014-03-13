@@ -42,16 +42,17 @@ scene (x, y) (w, h) selector f txtin s txt2in gridSize grid =
         griddle = showHexGrid hexSize styleGuide <| grid''
         pos = (x - (w `div` 2), y - (h `div` 2))
         hovered = pixelToHexCoord hexSize pos
-        panel = flow down [ text . bold . toText <| "control panel:"
-                           , flow right <| map (width 100) [plainText "effect:", selector]
-                           , flow right <| map (width 100) [plainText "effect size: ", color lightGreen txtin]
-                           , flow right <| map (width 100) [plainText "grid size: ", color lightYellow txt2in]
-                           , plainText "hex coord your mouse is at:"
-                           , asText hovered
+        plainText' = text . Text.color lightOrange . toText
+        panel = flow down [ text . Text.color lightOrange . bold . toText <| "control panel:"
+                           , flow right <| map (size 100 20) [plainText' "effect:", color lightOrange selector]
+                           , flow right <| map (size 100 20) [plainText' "effect size: ", color lightOrange txtin]
+                           , flow right <| map (size 100 20) [plainText' "grid size: ", color lightOrange txt2in]
+                           , plainText' "hex coord your mouse is at:"
+                           , plainText' <| show  hovered
                            ]
     in  layers [ color lightOrange <| container w h middle griddle
-               , color darkPurple  <| spacer (widthOf panel + 5) (heightOf panel + 5)
-               , color lightPurple <| spacer (widthOf panel + 3) (heightOf panel + 3)
+               , color darkOrange  <| spacer (widthOf panel + 5) (heightOf panel + 5)
+               , color black <| spacer (widthOf panel + 3) (heightOf panel + 3)
                , container (widthOf panel + 5) (heightOf panel + 5) middle panel
                ]
 
