@@ -11,9 +11,9 @@ import open HexGrid
 styleGuide : Int -> Float -> Form
 styleGuide n =
     let colorize = case n of
-                    1 -> filled darkOrange
-                    2 -> filled <| rgba 0 0 0 1
-                    _ -> filled <| rgba 0 0 0 1
+                    1 -> filled lightOrange
+                    2 -> filled darkOrange
+                    _ -> filled darkOrange
         shape    = case n of
                     1 -> scale 0.5 . colorize . circle
                     2 -> rotate (degrees 30) . colorize . ngon 6
@@ -42,15 +42,15 @@ scene (x, y) (w, h) selector f txtin s txt2in gridSize grid =
         griddle = showHexGrid hexSize styleGuide <| grid''
         pos = (x - (w `div` 2), y - (h `div` 2))
         hovered = pixelToHexCoord hexSize pos
-        plainText' = text . Text.color lightOrange . toText
-        panel = flow down [ text . Text.color lightOrange . bold . toText <| "control panel:"
-                           , flow right <| map (size 100 20) [plainText' "effect:", color lightOrange selector]
-                           , flow right <| map (size 100 20) [plainText' "effect size: ", color lightOrange txtin]
-                           , flow right <| map (size 100 20) [plainText' "grid size: ", color lightOrange txt2in]
+        plainText' = text . Text.color darkOrange . toText
+        panel = flow down [ text . Text.color darkOrange . bold . toText <| "control panel:"
+                           , flow right <| map (size 100 20) [plainText' "effect:", color darkOrange selector]
+                           , flow right <| map (size 100 20) [plainText' "effect size: ", color darkOrange txtin]
+                           , flow right <| map (size 100 20) [plainText' "grid size: ", color darkOrange txt2in]
                            , plainText' "hex coord your mouse is at:"
                            , plainText' <| show  hovered
                            ]
-    in  layers [ color lightOrange <| container w h middle griddle
+    in  layers [ color black <| container w h middle griddle
                , color darkOrange  <| spacer (widthOf panel + 5) (heightOf panel + 5)
                , color black <| spacer (widthOf panel + 3) (heightOf panel + 3)
                , container (widthOf panel + 5) (heightOf panel + 5) middle panel
