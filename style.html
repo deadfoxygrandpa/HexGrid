@@ -84,26 +84,15 @@ Elm.Demo.make = function (_elm) {
          var colorize = function () {
             switch (n)
             {case 1:
-               return Graphics.Collage.filled(Color.darkOrange);
+               return Graphics.Collage.filled(Color.lightOrange);
                case 2:
-               return Graphics.Collage.filled(A4(Color.rgba,
-                 0,
-                 0,
-                 0,
-                 0.4));}
-            return Graphics.Collage.filled(A4(Color.rgba,
-            0,
-            0,
-            0,
-            0.5));
+               return Graphics.Collage.filled(Color.darkOrange);}
+            return Graphics.Collage.filled(Color.darkOrange);
          }();
          var shape = function () {
             switch (n)
-            {case 1:
-               return function (_v10) {
-                    return function () {
-                       return Graphics.Collage.toForm(Text.plainText("welp,"));
-                    }();
+            {case 1: return function ($) {
+                    return Graphics.Collage.scale(0.5)(colorize(Graphics.Collage.circle($)));
                  };
                case 2: return function ($) {
                     return Graphics.Collage.rotate(Basics.degrees(30))(colorize(Graphics.Collage.ngon(6)($)));
@@ -115,8 +104,8 @@ Elm.Demo.make = function (_elm) {
          return shape;
       }();
    };
-   var scene = F9(function (_v12,
-   _v13,
+   var scene = F9(function (_v10,
+   _v11,
    selector,
    f,
    txtin,
@@ -125,34 +114,34 @@ Elm.Demo.make = function (_elm) {
    gridSize,
    grid) {
       return function () {
-         switch (_v13.ctor)
+         switch (_v11.ctor)
          {case "_Tuple2":
             return function () {
-                 switch (_v12.ctor)
+                 switch (_v10.ctor)
                  {case "_Tuple2":
                     return function () {
                          var plainText$ = function ($) {
-                            return Text.text(Text.color(Color.lightOrange)(Text.toText($)));
+                            return Text.text(Text.color(Color.darkOrange)(Text.toText($)));
                          };
                          var pos = {ctor: "_Tuple2"
-                                   ,_0: _v12._0 - (_v13._0 / 2 | 0)
-                                   ,_1: _v12._1 - (_v13._1 / 2 | 0)};
+                                   ,_0: _v10._0 - (_v11._0 / 2 | 0)
+                                   ,_1: _v10._1 - (_v11._1 / 2 | 0)};
                          var hexSize = A2(Basics.min,
                          100000,
-                         1 * Basics.toFloat(_v13._1) / (3 * Basics.toFloat(gridSize) + 2));
+                         1 * Basics.toFloat(_v11._1) / (3 * Basics.toFloat(gridSize) + 2));
                          var hovered = A2(HexGrid.pixelToHexCoord,
                          hexSize,
                          pos);
                          var panel = A2(Graphics.Element.flow,
                          Graphics.Element.down,
-                         _J.toList([Text.text(Text.color(Color.lightOrange)(Text.bold(Text.toText("control panel:"))))
+                         _J.toList([Text.text(Text.color(Color.darkOrange)(Text.bold(Text.toText("control panel:"))))
                                    ,Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
                                    A2(Graphics.Element.size,
                                    100,
                                    20),
                                    _J.toList([plainText$("effect:")
                                              ,A2(Graphics.Element.color,
-                                             Color.lightOrange,
+                                             Color.darkOrange,
                                              selector)])))
                                    ,Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
                                    A2(Graphics.Element.size,
@@ -160,7 +149,7 @@ Elm.Demo.make = function (_elm) {
                                    20),
                                    _J.toList([plainText$("effect size: ")
                                              ,A2(Graphics.Element.color,
-                                             Color.lightOrange,
+                                             Color.darkOrange,
                                              txtin)])))
                                    ,Graphics.Element.flow(Graphics.Element.right)(A2(List.map,
                                    A2(Graphics.Element.size,
@@ -168,7 +157,7 @@ Elm.Demo.make = function (_elm) {
                                    20),
                                    _J.toList([plainText$("grid size: ")
                                              ,A2(Graphics.Element.color,
-                                             Color.lightOrange,
+                                             Color.darkOrange,
                                              txt2in)])))
                                    ,plainText$("hex coord your mouse is at:")
                                    ,plainText$(Prelude.show(hovered))]));
@@ -190,9 +179,9 @@ Elm.Demo.make = function (_elm) {
                          var griddle = A2(HexGrid.showHexGrid,
                          hexSize,
                          styleGuide)(grid$$);
-                         return Graphics.Element.layers(_J.toList([Graphics.Element.color(Color.lightOrange)(A4(Graphics.Element.container,
-                                                                  _v13._0,
-                                                                  _v13._1,
+                         return Graphics.Element.layers(_J.toList([Graphics.Element.color(Color.black)(A4(Graphics.Element.container,
+                                                                  _v11._0,
+                                                                  _v11._1,
                                                                   Graphics.Element.middle,
                                                                   griddle))
                                                                   ,Graphics.Element.color(Color.darkOrange)(A2(Graphics.Element.spacer,
