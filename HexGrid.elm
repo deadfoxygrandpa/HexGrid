@@ -17,7 +17,6 @@ Currently all hexes are pointy-top.
 
 -}
 
-import Set
 import Dict
 
 import open Helpers
@@ -33,11 +32,16 @@ hexCoord x y = (x, y)
 data Shaper = SColor Color | STextured String | SGradient Gradient | SOutlined LineStyle
 
 {-| Create an empty rectangular hex grid -}
-rectangularHexGrid : (Int, Int) -> a -> HexGrid a
-rectangularHexGrid (w, h) a =
-    let row x y        = map (\n -> (hexCoord n y, a)) [0-x..w - 1 - x]
+rectangularHexGrid : Int -> a -> HexGrid a
+rectangularHexGrid r a =
+    let w = r
+        h = r
+        row x y        = map (\n -> (hexCoord n y, a)) [0-x..w - 1 - x]
         rowPair offset = row offset (offset * 2) ++ row offset (offset * 2 + 1)
-    in  Rectangular (w, h) . Dict.fromList <| concatMap (\n -> rowPair n) [0..(ceiling <| (toFloat h) / 2) - 1]
+        hexes = concatMap (\n -> rowPair n) [0..(ceiling <| (toFloat h) / 2) - 1]
+        hexes' = filter (\((_, y), _) -> y < h) hexes
+        off = ceiling <| (toFloat <| h `div` 2) / 2
+    in  Rectangular (w, h) . Dict.fromList <| map (\((x, y), a) -> ((x - off, y - (h `div` 2)), a)) hexes'
 
 {-| Create an empty hexagonal hex grid -}
 hexagonalHexGrid : Int -> a -> HexGrid a
@@ -51,7 +55,13 @@ showHexGrid : Float -> (a -> Float -> Form) -> HexGrid a -> Element
 showHexGrid r former grid =
     case grid of
         --Rectangular hs -> flow down . map asText . map (\row -> map toTuple row) <| hs
-        Rectangular (w, h) hs -> empty
+        Rectangular (w, h) hs -> let position (x, y) r = move (((sqrt 3) * r * (toFloat x) + ((sqrt 3)/2) * r * (toFloat y)), (-1.5 * r * (toFloat y)))
+                                     drawHex (coord, v) r = position coord r . former v <| r
+                                     w' = let w'' = round <| (sqrt 3) / 2 * r
+                                          in 2 * (w'' + (w * 2 + 1) * w'')
+                                     h' = round <| r * (toFloat <| h * 2 + 1) * 2.5 + r
+                                     hexes = group <| map (\hex -> drawHex hex r) (Dict.toList hs)
+                                 in  collage w' h' [hexes]
         Hexagonal   radius hs -> let position (x, y) r = move (((sqrt 3) * r * (toFloat x) + ((sqrt 3)/2) * r * (toFloat y)), (-1.5 * r * (toFloat y)))
                                      drawHex (coord, v) r = position coord r . former v <| r
                                      w = let w' = round <| (sqrt 3) / 2 * r
@@ -72,21 +82,15 @@ pixelToHexCoord s (x, y) =
 
 {-| Tests a `HexCoord` to see if it is inside the `HexGrid` -}
 inGrid : HexCoord -> HexGrid a -> Bool
-inGrid (x, y) grid =
+inGrid ((x, y) as coord) grid =
     case grid of
-        Rectangular (w, h) hs -> let offset = y `div` 2
-                                 in  if | y < 0  -> False
-                                        | y >= h -> False
-                                        | x >= w -> False
-                                        | x + offset < 0 -> False
-                                        | x + offset >= w -> False
-                                        | otherwise -> True
-        Hexagonal   radius hs -> let offset = radius * 2 - (abs y)
-                                 in  if | y < -radius -> False
-                                        | y >  radius -> False
-                                        | x + radius + (min 0 y) < 0 -> False
-                                        | x > offset - radius - (min 0 y) -> False
-                                        | otherwise -> True
+        Rectangular _    hs -> Dict.member coord hs
+        Hexagonal radius hs -> let offset = radius * 2 - (abs y)
+                               in  if | y < -radius -> False
+                                      | y >  radius -> False
+                                      | x + radius + (min 0 y) < 0 -> False
+                                      | x > offset - radius - (min 0 y) -> False
+                                      | otherwise -> True
 
 {-| Given a `HexCoord`, return all immediately surrounding `HexCoord`s in a list -}
 neighbors : HexCoord -> [HexCoord]
