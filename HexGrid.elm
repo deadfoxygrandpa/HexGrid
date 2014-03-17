@@ -23,7 +23,6 @@ import Dict
 import open Helpers
 
 data HexGrid a = Rectangular Size (Dict.Dict HexCoord a) | Hexagonal Radius (Dict.Dict HexCoord a)
---type Hex a     = {value : a, coord : HexCoord}
 type HexCoord  = (Int, Int)
 type Size = (Int, Int)
 type Radius = Int
@@ -34,11 +33,11 @@ hexCoord x y = (x, y)
 data Shaper = SColor Color | STextured String | SGradient Gradient | SOutlined LineStyle
 
 {-| Create an empty rectangular hex grid -}
---rectangularHexGrid : (Int, Int) -> a -> HexGrid a
---rectangularHexGrid (w, h) a =
---    let row x y        = map (\n -> {value = a, coord = {x = n, y = y}}) [0-x..w - 1 - x]
---        rowPair offset = [row offset (offset * 2), row offset (offset * 2 + 1)]
---    in  Rectangular <| concatMap (\n -> rowPair n) [0..(ceiling <| (toFloat h) / 2) - 1]
+rectangularHexGrid : (Int, Int) -> a -> HexGrid a
+rectangularHexGrid (w, h) a =
+    let row x y        = map (\n -> (hexCoord n y, a)) [0-x..w - 1 - x]
+        rowPair offset = row offset (offset * 2) ++ row offset (offset * 2 + 1)
+    in  Rectangular (w, h) . Dict.fromList <| concatMap (\n -> rowPair n) [0..(ceiling <| (toFloat h) / 2) - 1]
 
 {-| Create an empty hexagonal hex grid -}
 hexagonalHexGrid : Int -> a -> HexGrid a
@@ -53,13 +52,13 @@ showHexGrid r former grid =
     case grid of
         --Rectangular hs -> flow down . map asText . map (\row -> map toTuple row) <| hs
         Rectangular (w, h) hs -> empty
-        Hexagonal radius hs -> let position (x, y) r = move (((sqrt 3) * r * (toFloat x) + ((sqrt 3)/2) * r * (toFloat y)), (-1.5 * r * (toFloat y)))
-                                   drawHex (coord, v) r = position coord r . former v <| r
-                                   w = let w' = round <| (sqrt 3) / 2 * r
-                                       in 2 * (w' + (radius * 2 + 1) * w')
-                                   h = round <| r * (toFloat <| radius * 2 + 1) * 2.5 + r
-                                   hexes = group <| map (\hex -> drawHex hex r) (Dict.toList hs)
-                               in  collage w h [hexes]
+        Hexagonal   radius hs -> let position (x, y) r = move (((sqrt 3) * r * (toFloat x) + ((sqrt 3)/2) * r * (toFloat y)), (-1.5 * r * (toFloat y)))
+                                     drawHex (coord, v) r = position coord r . former v <| r
+                                     w = let w' = round <| (sqrt 3) / 2 * r
+                                         in 2 * (w' + (radius * 2 + 1) * w')
+                                     h = round <| r * (toFloat <| radius * 2 + 1) * 2.5 + r
+                                     hexes = group <| map (\hex -> drawHex hex r) (Dict.toList hs)
+                                 in  collage w h [hexes]
 
 {-| Given a hex size, and an onscreen pixel in (x, y) format, return the coordinate of the `Hex` this pixel is inside.
 This is useful for mouse interaction. Assumes the HexGrid is visually centered in the window. -}
@@ -75,23 +74,19 @@ pixelToHexCoord s (x, y) =
 inGrid : HexCoord -> HexGrid a -> Bool
 inGrid (x, y) grid =
     case grid of
-        Rectangular (w, h) hs -> True
-        --Rectangular hs -> let h = length hs
-        --                      w = length . head <| hs
-        --                      offset = y `div` 2
-        --                  in  if | y < 0  -> False
-        --                         | y >= h -> False
-        --                         | x >= w -> False
-        --                         | x + offset < 0 -> False
-        --                         | x + offset >= w -> False
-        --                         | otherwise -> True
-        Hexagonal r hs -> let radius = r
-                              offset = radius * 2 - (abs y)
-                          in  if | y < -radius -> False
-                                 | y >  radius -> False
-                                 | x + radius + (min 0 y) < 0 -> False
-                                 | x > offset - radius - (min 0 y) -> False
-                                 | otherwise -> True
+        Rectangular (w, h) hs -> let offset = y `div` 2
+                                 in  if | y < 0  -> False
+                                        | y >= h -> False
+                                        | x >= w -> False
+                                        | x + offset < 0 -> False
+                                        | x + offset >= w -> False
+                                        | otherwise -> True
+        Hexagonal   radius hs -> let offset = radius * 2 - (abs y)
+                                 in  if | y < -radius -> False
+                                        | y >  radius -> False
+                                        | x + radius + (min 0 y) < 0 -> False
+                                        | x > offset - radius - (min 0 y) -> False
+                                        | otherwise -> True
 
 {-| Given a `HexCoord`, return all immediately surrounding `HexCoord`s in a list -}
 neighbors : HexCoord -> [HexCoord]
@@ -167,8 +162,8 @@ hexRound (x, y) =
 insert : HexCoord -> a -> HexGrid a -> Maybe (HexGrid a)
 insert coord v grid = if not <| inGrid coord grid then Nothing else
     case grid of
-        Rectangular (w, h) hs -> Just grid
-        Hexagonal r hs -> Just . Hexagonal r <| Dict.insert coord v hs
+        Rectangular s hs -> Just . Rectangular s <| Dict.insert coord v hs
+        Hexagonal   r hs -> Just . Hexagonal   r <| Dict.insert coord v hs
 
 {-| Like `insert`, but returns the original grid if given an invalid `HexCoord` instead of wrapping the result
 in a `Maybe` type. -}
