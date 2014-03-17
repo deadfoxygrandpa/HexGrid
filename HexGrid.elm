@@ -46,15 +46,6 @@ hexagonalHexGrid r a =
     let row y = map (\n -> (((n - (min y r)), (y - r)), a)) [0..r*2 - (abs (r - y))]
     in  Hexagonal r . Dict.fromList <| concatMap (\n -> row n) [0..2*r]
 
---toHexList : HexGrid a -> [[Hex a]]
---toHexList grid =
---    case grid of
---        Rectangular hs -> hs
---        Hexagonal   hs -> hs
-
---toTuple : Hex a -> (Int, Int, a)
---toTuple hex = (hex.coord.x, hex.coord.y, hex.value)
-
 {-| Given a hex size in pixels, a Dict mapping hex values to Shaper types, and a HexGrid,
 draw the HexGrid as a visual Element -}
 showHexGrid : Float -> (a -> Float -> Form) -> HexGrid a -> Element
