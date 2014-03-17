@@ -1,4 +1,4 @@
-module Performance where
+module Benchmark where
 
 import Dict
 import HexGrid
