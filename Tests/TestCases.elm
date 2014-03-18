@@ -7,48 +7,67 @@ import open ElmTest.Assertion
 
 import open HexGrid
 
+gridEqual : HexGrid a -> HexGrid a -> Bool
+gridEqual grid1 grid2 =
+    case grid1 of
+        Rectangular s hs ->
+            case grid2 of
+                Rectangular s' hs' -> if | s /= s'                           -> False
+                                         | Dict.toList hs /= Dict.toList hs' -> False
+                                         | otherwise                         -> True
+                _                  -> False
+        Hexagonal   r hs ->
+            case grid2 of
+                Hexagonal   r' hs' -> if | r /= r'                           -> False
+                                         | Dict.toList hs /= Dict.toList hs' -> False
+                                         | otherwise                         -> True
+                _                  -> False
+
 testBinaryFunction : (a -> b -> c) -> [(String, (a, b), c)] -> [Test]
 testBinaryFunction f = map (\(name, (a, b), expected) -> test name <| assertEqual (f a b) expected)
+
+testGridFunction : (a -> b -> HexGrid c) -> [(String, (a, b), HexGrid c)] -> [Test]
+testGridFunction f = map (\(name, (a, b), expected) -> test name . assert <| (f a b) `gridEqual` expected)
 
 testUnaryFunction : (a -> b) -> [(String, a, b)] -> [Test]
 testUnaryFunction f = map (\(name, a, expected) -> test name <| assertEqual (f a) expected)
 
 rectangularHexGridTests : [Test]
-rectangularHexGridTests = testBinaryFunction rectangularHexGrid
-    [ ("Rectangular (0, 0) - 0", (0, 0),
+rectangularHexGridTests = testGridFunction rectangularHexGrid
+    [ ("Rectangular - 0", (1, 0),
+        Rectangular (1,1) (Dict.fromList [((0,0),0)]))
+    , ("Rectangular - 1", (1, 1),
+        Rectangular (1,1) (Dict.fromList [((0,0),1)]))
+    , ("Rectangular - Negative", (1, -1),
+        Rectangular (1,1) (Dict.fromList [((0,0),-1)]))
+    , ("Rectangular - Width 2", (2, 0),
+        Rectangular (2,2) (Dict.fromList [((-1,-1),0),((-1,0),0),((0,-1),0),((0,0),0)]))
+    , ("Rectangular - Width 0", (0, 0),
         Rectangular (0, 0) <| Dict.fromList [])
-    , ("Rectangular (0, 0) - 1", (0, 1.0),
+    , ("Rectangular - Height 0", (0, 0),
         Rectangular (0, 0) <| Dict.fromList [])
-    , ("Rectangular (0, 0) - Negative", (0, -1),
-        Rectangular (0, 0) <| Dict.fromList [])
-    , ("Rectangular (0, 0) - Width 2", (0, 0),
-        Rectangular (0, 0) <| Dict.fromList [])
-    , ("Rectangular (0, 0) - Width 0", (0, 0),
-        Rectangular (0, 0) <| Dict.fromList [])
-    , ("Rectangular (0, 0) - Height 0", (0, 0),
-        Rectangular (0, 0) <| Dict.fromList [])
-    , ("Rectangular (0, 0) - Height 3", (0, 0),
-        Rectangular (0, 0) <| Dict.fromList [])
-    , ("Rectangular (0, 0) - Large value", (0, 2^32),
-        Rectangular (0, 0) <| Dict.fromList [])
+    , ("Rectangular - Height 3", (3, 0),
+        Rectangular (3,3) (Dict.fromList [((-2,1),0),((-1,-1),0),((-1,0),0),((-1,1),0),((0,-1),0),((0,0),0),((0,1),0),((1,-1),0),((1,0),0)]))
+    , ("Rectangular - Large value", (1, 2^32),
+        Rectangular (1,1) (Dict.fromList [((0,0),2^32)]))
     ]
 
 hexagonalHexGridTests : [Test]
-hexagonalHexGridTests = testBinaryFunction hexagonalHexGrid
-    [ ("Hexagonal 0 - 0", (1, 0),
-        Hexagonal 0 <| Dict.fromList [])
-    , ("Hexagonal 0 - 1", (1, 1),
-        Hexagonal 0 <| Dict.fromList [])
-    , ("Hexagonal 0 - Radius 2", (2, 0),
-        Hexagonal 0 <| Dict.fromList [])
-    , ("Hexagonal 0 - Radius 0", (0, 0),
-        Hexagonal 0 <| Dict.fromList [])
-    , ("Hexagonal 0 - Radius 5", (5, 0),
-        Hexagonal 0 <| Dict.fromList [])
-    , ("Hexagonal 0 - Negative", (0, -1),
-        Hexagonal 0 <| Dict.fromList [])
-    , ("Hexagonal 0 - Large value", (0, 2^32),
-        Hexagonal 0 <| Dict.fromList [])
+hexagonalHexGridTests = testGridFunction hexagonalHexGrid
+    [ ("Hexagonal - 0", (1, 0),
+        Hexagonal 1 (Dict.fromList [((-1,0),0),((-1,1),0),((0,-1),0),((0,0),0),((0,1),0),((1,-1),0),((1,0),0)]))
+    , ("Hexagonal - 1", (1, 1),
+        Hexagonal 1 (Dict.fromList [((-1,0),1),((-1,1),1),((0,-1),1),((0,0),1),((0,1),1),((1,-1),1),((1,0),1)]))
+    , ("Hexagonal - Radius 2", (2, 0),
+        Hexagonal 2 (Dict.fromList [((-2,0),0),((-2,1),0),((-2,2),0),((-1,-1),0),((-1,0),0),((-1,1),0),((-1,2),0),((0,-2),0),((0,-1),0),((0,0),0),((0,1),0),((0,2),0),((1,-2),0),((1,-1),0),((1,0),0),((1,1),0),((2,-2),0),((2,-1),0),((2,0),0)]))
+    , ("Hexagonal - Radius 0", (0, 0),
+        Hexagonal 0 (Dict.fromList [((0,0),0)]))
+    , ("Hexagonal - Radius 5", (5, 0),
+        Hexagonal 5 (Dict.fromList [((-5,0),0),((-5,1),0),((-5,2),0),((-5,3),0),((-5,4),0),((-5,5),0),((-4,-1),0),((-4,0),0),((-4,1),0),((-4,2),0),((-4,3),0),((-4,4),0),((-4,5),0),((-3,-2),0),((-3,-1),0),((-3,0),0),((-3,1),0),((-3,2),0),((-3,3),0),((-3,4),0),((-3,5),0),((-2,-3),0),((-2,-2),0),((-2,-1),0),((-2,0),0),((-2,1),0),((-2,2),0),((-2,3),0),((-2,4),0),((-2,5),0),((-1,-4),0),((-1,-3),0),((-1,-2),0),((-1,-1),0),((-1,0),0),((-1,1),0),((-1,2),0),((-1,3),0),((-1,4),0),((-1,5),0),((0,-5),0),((0,-4),0),((0,-3),0),((0,-2),0),((0,-1),0),((0,0),0),((0,1),0),((0,2),0),((0,3),0),((0,4),0),((0,5),0),((1,-5),0),((1,-4),0),((1,-3),0),((1,-2),0),((1,-1),0),((1,0),0),((1,1),0),((1,2),0),((1,3),0),((1,4),0),((2,-5),0),((2,-4),0),((2,-3),0),((2,-2),0),((2,-1),0),((2,0),0),((2,1),0),((2,2),0),((2,3),0),((3,-5),0),((3,-4),0),((3,-3),0),((3,-2),0),((3,-1),0),((3,0),0),((3,1),0),((3,2),0),((4,-5),0),((4,-4),0),((4,-3),0),((4,-2),0),((4,-1),0),((4,0),0),((4,1),0),((5,-5),0),((5,-4),0),((5,-3),0),((5,-2),0),((5,-1),0),((5,0),0)]))
+    , ("Hexagonal - Negative", (0, -1),
+        Hexagonal 0 (Dict.fromList [((0,0),-1)]))
+    , ("Hexagonal - Large value", (0, 2^32),
+        Hexagonal 0 (Dict.fromList [((0,0),2^32)]))
     ]
 
 showHexGridTests : [Test]
@@ -113,15 +132,15 @@ pixelToHexCoordTests =
 
 inGridTests : [Test]
 inGridTests =
-    let rectGrid = rectangularHexGrid 0 0
+    let rectGrid = rectangularHexGrid 5 0
         hexGrid  = hexagonalHexGrid 5 0
     in testBinaryFunction inGrid
-    [ ("inGrid - Rectangular (0, 0) Pass", (hexCoord 0 0, rectGrid), True)
-    , ("inGrid - Rectangular (0, 0) Pass (not Origin)", (hexCoord 3 2, rectGrid), True)
-    , ("inGrid - Rectangular (0, 0) Fail", (hexCoord 100 0, rectGrid), False)
-    , ("inGrid - Hexagonal 0 Pass", (hexCoord 0 0, hexGrid), True)
-    , ("inGrid - Hexagonal 0 Pass (not Origin)", (hexCoord 2 -3, hexGrid), True)
-    , ("inGrid - Hexagonal 0 Fail", (hexCoord 0 100, hexGrid), False)
+    [ ("inGrid - Rectangular Pass", (hexCoord 0 0, rectGrid), True)
+    , ("inGrid - Rectangular Pass (not Origin)", (hexCoord 1 1, rectGrid), True)
+    , ("inGrid - Rectangular Fail", (hexCoord 100 0, rectGrid), False)
+    , ("inGrid - Hexagonal Pass", (hexCoord 0 0, hexGrid), True)
+    , ("inGrid - Hexagonal Pass (not Origin)", (hexCoord 2 -3, hexGrid), True)
+    , ("inGrid - Hexagonal Fail", (hexCoord 0 100, hexGrid), False)
     ]
 
 neighborsTests : [Test]
@@ -199,26 +218,26 @@ ringTests = testBinaryFunction ring
 insertTests : [Test]
 insertTests =
     let grid = hexagonalHexGrid 1 0 in
-    [ test "insert - Origin" <| assertEqual (insert (hexCoord 0 0) 1 grid) <|
-        Just (Hexagonal 0 <| Dict.fromList [])
-    , test "insert - Not Origin" <| assertEqual (insert (hexCoord 0 1) 1 grid) <|
-        Just (Hexagonal 0 <| Dict.fromList [])
+    [ test "insert - Origin" . assert <| gridEqual (maybe grid id <| insert (hexCoord 0 0) 1 grid) <|
+        Hexagonal 1 (Dict.fromList [((-1,0),0),((-1,1),0),((0,-1),0),((0,0),1),((0,1),0),((1,-1),0),((1,0),0)])
+    , test "insert - Not Origin" . assert <| gridEqual (maybe grid id <| insert (hexCoord 0 1) 1 grid) <|
+        Hexagonal 1 (Dict.fromList [((-1,0),0),((-1,1),0),((0,-1),0),((0,0),0),((0,1),1),((1,-1),0),((1,0),0)])
     , test "insert - Outside Grid" <| assertEqual (insert (hexCoord 10 10) 1 grid) Nothing
-    , test "insert - Negative" <| assertEqual (insert (hexCoord -1 0) 1 grid) <|
-        Just (Hexagonal 0 <| Dict.fromList [])
+    , test "insert - Negative" . assert <| gridEqual (maybe grid id <| insert (hexCoord -1 0) 1 grid) <|
+         Hexagonal 1 (Dict.fromList [((-1,0),1),((-1,1),0),((0,-1),0),((0,0),0),((0,1),0),((1,-1),0),((1,0),0)])
     ]
 
 -- TODO: Rectangular Hex Grid tests
 insertIfPossibleTests : [Test]
 insertIfPossibleTests =
     let grid = hexagonalHexGrid 1 0 in
-    [ test "insertIfPossible - Origin" <| assertEqual (insertIfPossible (hexCoord 0 0) 1 grid) <|
-        Hexagonal 0 <| Dict.fromList []
-    , test "insertIfPossible - Not Origin" <| assertEqual (insertIfPossible (hexCoord 0 1) 1 grid) <|
-        Hexagonal 0 <| Dict.fromList []
-    , test "insertIfPossible - Outside Grid" <| assertEqual (insertIfPossible (hexCoord 10 10) 1 grid) grid
-    , test "insertIfPossible - Negative" <| assertEqual (insertIfPossible (hexCoord -1 0) 1 grid) <|
-        Hexagonal 0 <| Dict.fromList []
+    [ test "insertIfPossible - Origin" . assert <| gridEqual (insertIfPossible (hexCoord 0 0) 1 grid) <|
+        Hexagonal 1 (Dict.fromList [((-1,0),0),((-1,1),0),((0,-1),0),((0,0),1),((0,1),0),((1,-1),0),((1,0),0)])
+    , test "insertIfPossible - Not Origin" . assert <| gridEqual (insertIfPossible (hexCoord 0 1) 1 grid) <|
+        Hexagonal 1 (Dict.fromList [((-1,0),0),((-1,1),0),((0,-1),0),((0,0),0),((0,1),1),((1,-1),0),((1,0),0)])
+    , test "insertIfPossible - Outside Grid" . assert <| gridEqual (insertIfPossible (hexCoord 10 10) 1 grid) grid
+    , test "insertIfPossible - Negative" . assert <| gridEqual (insertIfPossible (hexCoord -1 0) 1 grid) <|
+        Hexagonal 1 (Dict.fromList [((-1,0),1),((-1,1),0),((0,-1),0),((0,0),0),((0,1),0),((1,-1),0),((1,0),0)])
     ]
 
 tests : [Test]
