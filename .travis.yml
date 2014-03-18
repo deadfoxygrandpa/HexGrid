@@ -13,7 +13,6 @@ install:
   - echo "y" | elm-get install evancz/automaton
   - echo "n" | elm-get install deadfoxygrandpa/Elm-Test
   - npm install jsdom
-  - npm install benchmark
 before_script: elm-io --default-ports Tests/NodeTests.elm tests.js
 script:
   - elm --make Demo.elm
@@ -25,4 +24,5 @@ after_script:
   - sudo ln -s ~/.cabal/bin/elm-benchmark /usr/local/bin/elm-benchmark
   - cd ..
   - elm-benchmark Tests/Benchmark.elm benchmark.js
+  - npm install benchmark
   - node --stack-size=32000 benchmark.js
