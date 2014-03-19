@@ -35,6 +35,9 @@ port line1 = \_ -> discard . HexGrid.line (HexGrid.hexCoord 0 0) <| HexGrid.hexC
 port line10 : () -> ()
 port line10 = \_ -> discard . HexGrid.line (HexGrid.hexCoord 0 0) <| HexGrid.hexCoord 10 0
 
+port rotation : () -> ()
+port rotation = \_ -> discard . HexGrid.rotation HexGrid.Left <| (HexGrid.hexCoord 4 5)
+
 port inGridRect : () -> ()
 port inGridRect = \_ -> discard . HexGrid.inGrid (HexGrid.hexCoord 10 10) <| grid1
 

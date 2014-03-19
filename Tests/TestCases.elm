@@ -257,6 +257,13 @@ axialToCubeTests = testUnaryFunction axialToCube
     , ("axialToCube -  3,  0", hexCoord  3  0, ( 3,  0, -3))
     ]
 
+rotationTests : [Test]
+rotationTests = testBinaryFunction rotation
+    [ ("rotation - Left" , (Left , hexCoord -1 4), hexCoord  3 1)
+    , ("rotation - Right", (Right, hexCoord -1 4), hexCoord -4 3)
+    , ("rotation - Origin", (Left, hexCoord  0 0), hexCoord  0 0)
+    ]
+
 tests : [Test]
 tests = rectangularHexGridTests
      ++ hexagonalHexGridTests
@@ -272,3 +279,4 @@ tests = rectangularHexGridTests
      ++ insertTests
      ++ insertIfPossibleTests
      ++ axialToCubeTests
+     ++ rotationTests

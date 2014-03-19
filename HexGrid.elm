@@ -25,6 +25,8 @@ type HexCoord  = (Int, Int)
 type Size = (Int, Int)
 type Radius = Int
 
+data Direction = Left | Right
+
 hexCoord : Int -> Int -> HexCoord
 hexCoord x y = (x, y)
 
@@ -132,6 +134,13 @@ range (x, y) n =
             hexCoord (x + dx) (y + dy))
         [max -n (-dx - n)..min n (-dx + n)])
     [-n..n]
+
+rotation : Direction -> HexCoord -> HexCoord
+rotation direction coord =
+    let (x, y, z) = axialToCube coord
+    in  case direction of
+        Left  -> hexCoord -z -x
+        Right -> hexCoord -y -z
 
 {-| Return a list of `HexCoord`s that form a ring shape of size n around a given `HexCoord` -}
 ring : HexCoord -> Int -> [HexCoord]
