@@ -166,8 +166,8 @@ distanceTests = testBinaryFunction distance
     , ("distance - No Origin", (hexCoord -3 0, hexCoord 5 0), 8)
     , ("distance - Horizontal", (hexCoord 0 0, hexCoord 10 0), 10)
     , ("distance - Vertical", (hexCoord 0 0, hexCoord 0 10), 10)
-    , ("distance - Diagonal", (hexCoord 0 0, hexCoord 5 7), 7)
-    , ("distance - Negative", (hexCoord 0 0, hexCoord -3 -3), 3)
+    , ("distance - Diagonal", (hexCoord 0 0, hexCoord 5 7), 12)
+    , ("distance - Negative", (hexCoord 0 0, hexCoord -3 -3), 6)
     ]
 
 -- line is not actually correctly implemented yet
@@ -240,6 +240,23 @@ insertIfPossibleTests =
         Hexagonal 1 (Dict.fromList [((-1,0),1),((-1,1),0),((0,-1),0),((0,0),0),((0,1),0),((1,-1),0),((1,0),0)])
     ]
 
+axialToCubeTests : [Test]
+axialToCubeTests = testUnaryFunction axialToCube
+    [ ("axialToCube -  0,  0", hexCoord  0  0, ( 0,  0,  0))
+    , ("axialToCube -  0, -1", hexCoord  0 -1, ( 0, -1,  1))
+    , ("axialToCube -  1, -1", hexCoord  1 -1, ( 1, -1,  0))
+    , ("axialToCube -  1,  0", hexCoord  1  0, ( 1,  0, -1))
+    , ("axialToCube -  0,  1", hexCoord  0  1, ( 0,  1, -1))
+    , ("axialToCube - -1,  1", hexCoord -1  1, (-1,  1,  0))
+    , ("axialToCube - -1,  0", hexCoord -1  0, (-1,  0,  1))
+    , ("axialToCube -  0, -3", hexCoord  0 -3, ( 0, -3,  3))
+    , ("axialToCube -  3, -3", hexCoord  3 -3, ( 3, -3,  0))
+    , ("axialToCube -  0, -3", hexCoord  0  3, ( 0,  3, -3))
+    , ("axialToCube - -3,  3", hexCoord -3  3, (-3,  3,  0))
+    , ("axialToCube - -3,  0", hexCoord -3  0, (-3,  0,  3))
+    , ("axialToCube -  3,  0", hexCoord  3  0, ( 3,  0, -3))
+    ]
+
 tests : [Test]
 tests = rectangularHexGridTests
      ++ hexagonalHexGridTests
@@ -254,3 +271,4 @@ tests = rectangularHexGridTests
      ++ ringTests
      ++ insertTests
      ++ insertIfPossibleTests
+     ++ axialToCubeTests

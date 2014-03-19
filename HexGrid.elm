@@ -103,10 +103,12 @@ diagonals (x, y) = [ hexCoord (x + 2) (y - 1), hexCoord (x + 1) (y - 2), hexCoor
 {-| Get the straight line distance between two `HexCoord`s -}
 distance : HexCoord -> HexCoord -> Int
 distance coord1 coord2 =
-    let (x1, y1) = (fst coord1, snd coord1)
-        (x2, y2) = (fst coord2, snd coord2)
-        (z1, z2) = (-(x1 - y1), -(x2 - y2))
+    let (x1, y1, z1) = axialToCube coord1
+        (x2, y2, z2) = axialToCube coord2
     in  ((abs <| x1 - x2) + (abs <| y1 - y2) + (abs <| z1 - z2)) `div` 2
+
+axialToCube : HexCoord -> (Int, Int, Int)
+axialToCube (x, y) = (x, y, -x - y)
 
 {-| Return the list of `HexCoord`s that form the shortest straight line between two `HexCoord`s -}
 --line : HexCoord -> HexCoord -> [HexCoord]
