@@ -29,6 +29,12 @@ styler = styleGuide 25 6 red
 
 discard _ = ()
 
+port line1 : () -> ()
+port line1 = \_ -> discard . HexGrid.line (HexGrid.hexCoord 0 0) <| HexGrid.hexCoord 1 0
+
+port line10 : () -> ()
+port line10 = \_ -> discard . HexGrid.line (HexGrid.hexCoord 0 0) <| HexGrid.hexCoord 10 0
+
 port inGridRect : () -> ()
 port inGridRect = \_ -> discard . HexGrid.inGrid (HexGrid.hexCoord 10 10) <| grid1
 

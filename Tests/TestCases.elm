@@ -171,22 +171,22 @@ distanceTests = testBinaryFunction distance
     ]
 
 -- line is not actually correctly implemented yet
---lineTests : [Test]
---lineTests = testBinaryFunction line
---    [ ("line - 0", (hexCoord 0 0, hexCoord 0 0), [])
---    , ("line - From Origin", (hexCoord 0 0, hexCoord 2 0),
---        [hexCoord 0 0, hexCoord 1 0, hexCoord 2 0])
---    , ("line - No Origin", (hexCoord 10 10, hexCoord 10 12),
---        [hexCoord 10 10, hexCoord 10 11, hexCoord 10 12])
---    , ("line - Horizontal", (hexCoord 0 0, hexCoord 3 0),
---        [hexCoord 0 0, hexCoord 1 0, hexCoord 2 0, hexCoord 3 0])
---    , ("line - Vertcal", (hexCoord 0 0, hexCoord 0 3),
---        [hexCoord 0 0, hexCoord 0 1, hexCoord 0 2, hexCoord 0 3])
---    , ("line - Diagonal", (hexCoord 0 0, hexCoord 3 3),
---        [hexCoord 0 0, hexCoord 1 1, hexCoord 2 2, hexCoord 3 3])
---    , ("line - Negative", (hexCoord 0 0, hexCoord -2 -2),
---        [hexCoord 0 0, hexCoord -1 -1, hexCoord -2 -2])
---    ]
+lineTests : [Test]
+lineTests = testBinaryFunction line
+    [ ("line - 0", (hexCoord 0 0, hexCoord 0 0), [])
+    , ("line - From Origin", (hexCoord 0 0, hexCoord 2 0),
+        [hexCoord 0 0, hexCoord 1 0, hexCoord 2 0])
+    , ("line - No Origin", (hexCoord 10 10, hexCoord 10 12),
+        [hexCoord 10 10, hexCoord 10 11, hexCoord 10 12])
+    , ("line - Horizontal", (hexCoord 0 0, hexCoord 3 0),
+        [hexCoord 0 0, hexCoord 1 0, hexCoord 2 0, hexCoord 3 0])
+    , ("line - Vertcal", (hexCoord 0 0, hexCoord 0 3),
+        [hexCoord 0 0, hexCoord 0 1, hexCoord 0 2, hexCoord 0 3])
+    , ("line - Diagonal", (hexCoord 0 0, hexCoord 3 3),
+        [hexCoord 0 0, hexCoord 1 0, hexCoord 1 1, hexCoord 2 1, hexCoord 2 2, hexCoord 3 2, hexCoord 3 3])
+    , ("line - Negative", (hexCoord 0 0, hexCoord -2 -2),
+        [hexCoord 0 0, hexCoord 0 -1, hexCoord -1 -1, hexCoord -1 -2, hexCoord -2 -2])
+    ]
 
 rangeTests : [Test]
 rangeTests = testBinaryFunction range
@@ -266,7 +266,7 @@ tests = rectangularHexGridTests
      ++ neighborsTests
      ++ diagonalsTests
      ++ distanceTests
-     --++ lineTests -- This function still needs to be implemented correctly!
+     ++ lineTests -- This function still needs to be implemented correctly!
      ++ rangeTests
      ++ ringTests
      ++ insertTests

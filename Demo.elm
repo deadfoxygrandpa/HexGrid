@@ -25,6 +25,7 @@ styleGuide rotation sides col n =
                                 , ("Ring", flip ring)
                                 , ("Range", flip range)
                                 , ("Neighbors", (\_ -> neighbors))
+                                , ("Line", \_ -> line (hexCoord 0 0))
                                 , ("None", (\_ _ -> []))
                                 ]
 (txt, num) = Input.field "2"

@@ -18,6 +18,7 @@ Currently all hexes are pointy-top.
 -}
 
 import Dict
+import Set
 
 data HexGrid a = Rectangular Size (Dict.Dict HexCoord a) | Hexagonal Radius (Dict.Dict HexCoord a)
 type HexCoord  = (Int, Int)
@@ -111,17 +112,17 @@ axialToCube : HexCoord -> (Int, Int, Int)
 axialToCube (x, y) = (x, y, -x - y)
 
 {-| Return the list of `HexCoord`s that form the shortest straight line between two `HexCoord`s -}
---line : HexCoord -> HexCoord -> [HexCoord]
---line coord1 coord2 =
---    let (x1, y1) = ((toFloat coord1.x) + 0.000001, (toFloat coord1.y) + 0.000001)
---        (x2, y2) = (toFloat coord2.x, toFloat coord2.y)
---        (z1, z2) = (-(x1 - y1), -(x2 - y2))
---        dx       = x1 - x2
---        dy       = y1 - y2
---        dz       = z1 - z2
---        n        = round . maximum <| map abs [dx - dy, dy - dz, dz - dx]
---        f x      = (toFloat x) / (toFloat n)
---    in  map (\(a, b) -> hexCoord a b) . Set.toList . Set.fromList <| map (\i -> hexRound (x1 * (f i) + x2 * (1 - (f i)), y1 * (f i) + y2 * (1 - (f i)))) [0..n]
+line : HexCoord -> HexCoord -> [HexCoord]
+line coord1 coord2 = if (coord1 == coord2) then [] else
+    let n = toFloat <| distance coord1 coord2
+        pts = [0..n]
+    in  map (\i -> hexRound <| (coord1 `hexMult` (1 - i/n)) `hexAdd` (coord2 `hexMult` (i/n))) pts
+
+hexMult : HexCoord -> Float -> (Float, Float)
+hexMult (x, y) n = (toFloat x * n, toFloat y * n)
+
+hexAdd : (number, number) -> (number, number) -> (number, number)
+hexAdd (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 
 {-| Return a list of all `HexCoord`s within a given distance of a given `HexCoord` -}
 range : HexCoord -> Int -> [HexCoord]
@@ -157,9 +158,9 @@ neighbor (x, y) direction =
                       _ -> (0  ,  0)
     in  hexCoord (x + dx) (y + dy)
 
-hexRound : (Float, Float) -> (Int, Int)
+hexRound : (Float, Float) -> HexCoord
 hexRound (x, y) =
-    let z            = -(x - y)
+    let z            = -x - y
         (rx, ry, rz) = (round x, round y, round z)
         errX         = abs (rx - x)
         errY         = abs (ry - y)
