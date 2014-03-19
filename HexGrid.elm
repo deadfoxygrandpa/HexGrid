@@ -19,8 +19,6 @@ Currently all hexes are pointy-top.
 
 import Dict
 
-import open Helpers
-
 data HexGrid a = Rectangular Size (Dict.Dict HexCoord a) | Hexagonal Radius (Dict.Dict HexCoord a)
 type HexCoord  = (Int, Int)
 type Size = (Int, Int)
@@ -147,8 +145,14 @@ ring (x, y) r =
 0 is immediately east, and they move counterclockwise from there. -}
 neighbor : HexCoord -> Int -> HexCoord
 neighbor (x, y) direction =
-    let (dx, dy) = maybe (0, 0) id <| [ (1, 0), (1, -1), (0, -1)
-                                      , (-1, 0), (-1, 1), (0, 1) ] # direction
+    let (dx, dy) = case direction of
+                      0 -> (1  ,  0)
+                      1 -> (1  , -1)
+                      2 -> (0  , -1)
+                      3 -> (-1 ,  0)
+                      4 -> (-1 ,  1)
+                      5 -> (0  ,  1)
+                      _ -> (0  ,  0)
     in  hexCoord (x + dx) (y + dy)
 
 hexRound : (Float, Float) -> (Int, Int)
