@@ -34,21 +34,21 @@ testUnaryFunction f = map (\(name, a, expected) -> test name <| assertEqual (f a
 
 rectangularHexGridTests : [Test]
 rectangularHexGridTests = testGridFunction rectangularHexGrid
-    [ ("Rectangular - 0", (1, 0),
+    [ ("Rectangular - 0", ((1, 1), 0),
         Rectangular (1,1) (Dict.fromList [((0,0),0)]))
-    , ("Rectangular - 1", (1, 1),
+    , ("Rectangular - 1", ((1, 1), 1),
         Rectangular (1,1) (Dict.fromList [((0,0),1)]))
-    , ("Rectangular - Negative", (1, -1),
+    , ("Rectangular - Negative", ((1, 1), -1),
         Rectangular (1,1) (Dict.fromList [((0,0),-1)]))
-    , ("Rectangular - Width 2", (2, 0),
+    , ("Rectangular - Width 2", ((2, 2), 0),
         Rectangular (2,2) (Dict.fromList [((-1,-1),0),((-1,0),0),((0,-1),0),((0,0),0)]))
-    , ("Rectangular - Width 0", (0, 0),
+    , ("Rectangular - Width 0", ((0, 0), 0),
         Rectangular (0, 0) <| Dict.fromList [])
-    , ("Rectangular - Height 0", (0, 0),
+    , ("Rectangular - Height 0", ((0, 0), 0),
         Rectangular (0, 0) <| Dict.fromList [])
-    , ("Rectangular - Height 3", (3, 0),
+    , ("Rectangular - Height 3", ((3, 3), 0),
         Rectangular (3,3) (Dict.fromList [((-2,1),0),((-1,-1),0),((-1,0),0),((-1,1),0),((0,-1),0),((0,0),0),((0,1),0),((1,-1),0),((1,0),0)]))
-    , ("Rectangular - Large value", (1, 2^32),
+    , ("Rectangular - Large value", ((1, 1), 2^32),
         Rectangular (1,1) (Dict.fromList [((0,0),2^32)]))
     ]
 
@@ -83,7 +83,7 @@ showHexGridTests =
                         _ -> colorize . square--rotate (degrees 30) . colorize . ngon 6
         in shape in
     [ test "showHexGrid - Rectangular" <|
-        assertEqual (show <| showHexGrid 1 style <| rectangularHexGrid 1 0) "<internal structure>"
+        assertEqual (show <| showHexGrid 1 style <| rectangularHexGrid (1, 1) 0) "<internal structure>"
     , test "showHexGrid - Hexagonal" <|
         assertEqual (show <| showHexGrid 1 style <| hexagonalHexGrid 1 0) "<internal structure>"
     ]
@@ -132,7 +132,7 @@ pixelToHexCoordTests =
 
 inGridTests : [Test]
 inGridTests =
-    let rectGrid = rectangularHexGrid 5 0
+    let rectGrid = rectangularHexGrid (5, 5) 0
         hexGrid  = hexagonalHexGrid 5 0
     in testBinaryFunction inGrid
     [ ("inGrid - Rectangular Pass", (hexCoord 0 0, rectGrid), True)

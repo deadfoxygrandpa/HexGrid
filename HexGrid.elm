@@ -32,10 +32,10 @@ hexCoord x y = (x, y)
 data Shaper = SColor Color | STextured String | SGradient Gradient | SOutlined LineStyle
 
 {-| Create an empty rectangular hex grid -}
-rectangularHexGrid : Int -> a -> HexGrid a
-rectangularHexGrid r a =
-    let w = r
-        h = r
+rectangularHexGrid : (Int, Int) -> a -> HexGrid a
+rectangularHexGrid s a =
+    let w = fst s
+        h = snd s
         row x y        = map (\n -> (hexCoord n y, a)) [0-x..w - 1 - x]
         rowPair offset = row offset (offset * 2) ++ row offset (offset * 2 + 1)
         hexes = concatMap (\n -> rowPair n) [0..(ceiling <| (toFloat h) / 2) - 1]

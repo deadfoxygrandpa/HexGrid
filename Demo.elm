@@ -54,11 +54,11 @@ rotation = maybe 0 id . String.toFloat <~ rots
 sides = maybe 6 id . String.toInt <~ sidess
 
 gridsignal = (flip rectangularHexGrid) 0 <~ gridSizesignal
-gridSizesignal = maybe 5 id <~ (String.toInt <~ num2)
+gridSizesignal = (,) <~ (maybe 5 id . String.toInt <~ num2) ~ (maybe 5 id . String.toInt <~ num2)
 
 scene (x, y) (w, h) selector f txtin s txt2in gridSize grid bgrf bggf bgbf bgcolor rotf sidesf fgrf fggf fgbf fgcolor styleGuide =
     let n' = maybe 2 id <| String.toInt s
-        hexSize = (2 * (toFloat h))/(3 * (toFloat gridSize) + 1) --min (100000) ((1 * (toFloat h)) / (3 * (toFloat gridSize) + 2))
+        hexSize = (2 * (toFloat h))/(3 * (toFloat . fst <| gridSize) + 1) --min (100000) ((1 * (toFloat h)) / (3 * (toFloat gridSize) + 2))
         grid' = foldr (\coord g -> insertIfPossible coord 2 g) grid <| f n' hovered
         grid'' = insertIfPossible hovered 1 grid'
         griddle = showHexGrid hexSize styleGuide <| grid''
