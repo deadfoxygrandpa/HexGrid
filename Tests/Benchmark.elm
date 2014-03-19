@@ -3,8 +3,10 @@ module Benchmark where
 import Dict
 import HexGrid
 
-grid1 = HexGrid.rectangularHexGrid 44 0
-grid2 = HexGrid.hexagonalHexGrid   25 0
+grid1 = HexGrid.rectangularHexGrid (44, 44) 0
+grid2 = HexGrid.hexagonalHexGrid   25       0
+
+smallGrid = HexGrid.hexagonalHexGrid 5 0
 
 toList grid =
     case grid of
@@ -34,7 +36,7 @@ port inGridHex : () -> ()
 port inGridHex = \_ -> discard . HexGrid.inGrid (HexGrid.hexCoord 10 10) <| grid2
 
 port rectangularHexGrid : () -> ()
-port rectangularHexGrid = \_ -> discard . HexGrid.rectangularHexGrid 44 <| 0
+port rectangularHexGrid = \_ -> discard . HexGrid.rectangularHexGrid (44, 44) <| 0
 
 port hexagonalHexGrid : () -> ()
 port hexagonalHexGrid = \_ -> discard . HexGrid.hexagonalHexGrid 25 <| 0
@@ -44,6 +46,12 @@ port showHexGridRect = \_ -> discard . HexGrid.showHexGrid 25 styler <| grid1
 
 port showHexGridHex : () -> ()
 port showHexGridHex = \_ -> discard . HexGrid.showHexGrid 25 styler <| grid2
+
+port showSmallHexGrid : () -> ()
+port showSmallHexGrid = \_ -> discard . HexGrid.showHexGrid 250 styler <| smallGrid
+
+port showSmallHexGridSmaller : () -> ()
+port showSmallHexGridSmaller = \_ -> discard . HexGrid.showHexGrid 5 styler <| smallGrid
 
 port pixelToHexCoord : () -> ()
 port pixelToHexCoord = \_ -> discard . HexGrid.pixelToHexCoord 25 <| (50, 50)
