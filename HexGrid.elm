@@ -106,7 +106,7 @@ distance coord1 coord2 =
     let (x1, y1) = (fst coord1, snd coord1)
         (x2, y2) = (fst coord2, snd coord2)
         (z1, z2) = (-(x1 - y1), -(x2 - y2))
-    in  maximum [abs (x1 - x2), abs (y1 - y2), abs (z1 - z2)]
+    in  ((abs <| x1 - x2) + (abs <| y1 - y2) + (abs <| z1 - z2)) `div` 2
 
 {-| Return the list of `HexCoord`s that form the shortest straight line between two `HexCoord`s -}
 --line : HexCoord -> HexCoord -> [HexCoord]
