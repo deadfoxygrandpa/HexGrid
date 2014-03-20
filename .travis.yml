@@ -11,7 +11,7 @@ install:
   - sudo ln -s ~/.cabal/bin/elm-io /usr/local/bin/elm-io
   - cd ..
   - echo "y" | elm-get install evancz/automaton
-  - echo "n" | elm-get install deadfoxygrandpa/Elm-Test
+  - echo "y" | elm-get install deadfoxygrandpa/Elm-Test
   - npm install jsdom
 before_script: elm-io --default-ports Tests/NodeTests.elm tests.js
 script:
