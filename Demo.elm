@@ -20,13 +20,16 @@ styleGuide rotation sides col n =
                     _ -> scale 0.9 . rotate (degrees <| rotation + 30) . colorize . ngon sides -- colorize . square
     in shape
 
+list x = [x]
 
-(droppa, func) = Input.dropDown [ ("Diagonals", (\_ -> diagonals))
+(droppa, func) = Input.dropDown [ ("Diagonals", \_ -> diagonals)
                                 , ("Ring", flip ring)
                                 , ("Range", flip range)
-                                , ("Neighbors", (\_ -> neighbors))
+                                , ("Neighbors", \_ -> neighbors)
                                 , ("Line", \_ -> line (hexCoord 0 0))
-                                , ("None", (\_ _ -> []))
+                                , ("Rotate Left", \_ coord -> [rotation Left coord, hexCoord 0 0])
+                                , ("Rotate Right", \_ coord -> [rotation Right coord, hexCoord 0 0])
+                                , ("None", \_ _ -> [])
                                 ]
 (txt, num) = Input.field "2"
 
@@ -51,7 +54,7 @@ fgcolor = rgb <~ (maybe 255 id . String.toInt <~ fgrs)
 (rotf, rots) = Input.field "0"
 (sidesf, sidess) = Input.field "6"
 
-rotation = maybe 0 id . String.toFloat <~ rots
+rotationValue = maybe 0 id . String.toFloat <~ rots
 sides = maybe 6 id . String.toInt <~ sidess
 
 gridsignal = (flip rectangularHexGrid) 0 <~ gridSizesignal
@@ -95,4 +98,4 @@ scene (x, y) (w, h) selector f txtin s txt2in gridSize grid bgrf bggf bgbf bgcol
 
 main = scene <~ Mouse.position ~ Window.dimensions ~ droppa ~ func ~ txt ~ num ~ txt2 ~ gridSizesignal ~ gridsignal
               ~ bgrf ~ bggf ~ bgbf ~ bgcolor ~ rotf ~ sidesf ~ fgrf ~ fggf ~ fgbf ~ fgcolor
-              ~ (styleGuide <~ rotation ~ sides ~ fgcolor)
+              ~ (styleGuide <~ rotationValue ~ sides ~ fgcolor)
