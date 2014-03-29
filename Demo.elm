@@ -6,7 +6,7 @@ import Window
 import String
 import Dict
 
-import open HexGrid
+import HexGrid (..)
 
 styleGuide : Float -> Int -> Color -> Int -> Float -> Form
 styleGuide rotation sides col n =
