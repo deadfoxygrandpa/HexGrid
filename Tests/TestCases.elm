@@ -2,10 +2,10 @@ module Tests.TestCases where
 
 import Dict
 
-import open ElmTest.Test
-import open ElmTest.Assertion
+import ElmTest.Test (..)
+import ElmTest.Assertion (..)
 
-import open HexGrid
+import HexGrid (..)
 
 gridEqual : HexGrid a -> HexGrid a -> Bool
 gridEqual grid1 grid2 =
