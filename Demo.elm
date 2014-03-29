@@ -124,8 +124,8 @@ scene environment =
         griddle = showHexGrid environment.hexSize environment.styleGuide <| grid''
         pos = (x - (w `div` 2), y - (h `div` 2))
         hovered = pixelToHexCoord environment.hexSize pos
-        plainText' = text . Text.color fgColor . toText
-        panel = flow down [ color fgColor <| container 200 30 midLeft <| text . Text.color bgColor . bold . toText <| "control panel:"
+        plainText' = centered . Text.color fgColor . toText
+        panel = flow down [ color fgColor <| container 200 30 midLeft <| centered . Text.color bgColor . bold . toText <| "control panel:"
                            , spacer 2 2
                            , flow right <| map (size 100 20) [plainText' "grid type:", color fgColor environment.gridTypeBox]
                            , flow right <| map (size 100 20) [plainText' "effect:", color fgColor environment.effectBox]
