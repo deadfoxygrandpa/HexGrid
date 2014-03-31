@@ -1,12 +1,14 @@
 module Demo where
 
 import Graphics.Input as Input
+import Graphics.Input.Field as Field
 import Mouse
 import Window
 import String
 import Dict
 
 import HexGrid (..)
+import HexGrid
 
 styleGuide : Float -> Int -> Color -> Int -> Float -> Form
 styleGuide rotation sides col n =
@@ -21,31 +23,60 @@ styleGuide rotation sides col n =
     in shape
 
 -- Input Controls:
-
-(gridTypeBox, gridType) = Input.dropDown
+gridSelector = Input.input True
+gridTypeBox = Input.dropDown gridSelector.handle
     [ ("Rectangular", True)
     , ("Hexagonal"  , False)
     ]
-(effectBox, effect) = Input.dropDown
+gridType = gridSelector.signal
+
+effectSelector = Input.input <| \_ -> diagonals
+effectBox = Input.dropDown effectSelector.handle
     [ ("Diagonals"   , \_ -> diagonals)
     , ("Ring"        , flip ring)
     , ("Range"       , flip range)
     , ("Neighbors"   , \_ -> neighbors)
     , ("Line"        , \_ -> line (hexCoord 0 0))
-    , ("Rotate Left" , \_ coord -> [rotation Left coord, hexCoord 0 0])
-    , ("Rotate Right", \_ coord -> [rotation Right coord, hexCoord 0 0])
+    , ("Rotate Left" , \_ coord -> [HexGrid.rotation Left coord, hexCoord 0 0])
+    , ("Rotate Right", \_ coord -> [HexGrid.rotation Right coord, hexCoord 0 0])
     , ("None"        , \_ _ -> [])
     ]
-(effectSizeBox, effectSizeString) = Input.field "2"
-(gridSizeBox  , gridSizeString)   = Input.field "5"
-(bgRedBox     , bgRedString)      = Input.field "0"
-(bgGreenBox   , bgGreenString)    = Input.field "0"
-(bgBlueBox    , bgBlueString)     = Input.field "0"
-(fgRedBox     , fgRedString)      = Input.field "255"
-(fgGreenBox   , fgGreenString)    = Input.field "156"
-(fgBlueBox    , fgBlueString)     = Input.field "0"
-(rotationBox  , rotationString)   = Input.field "0"
-(sidesBox     , sidesString)      = Input.field "6"
+effect = effectSelector.signal
+
+effectSize' = Input.input <| Field.Content "2" (Field.Selection 0 0 Field.Forward)
+gridSize' = Input.input <| Field.Content "5" (Field.Selection 0 0 Field.Forward)
+bgRed = Input.input <| Field.Content "0" (Field.Selection 0 0 Field.Forward)
+bgGreen = Input.input <| Field.Content "0" (Field.Selection 0 0 Field.Forward)
+bgBlue = Input.input <| Field.Content "0" (Field.Selection 0 0 Field.Forward)
+fgRed = Input.input <| Field.Content "255" (Field.Selection 0 0 Field.Forward)
+fgGreen = Input.input <| Field.Content "156" (Field.Selection 0 0 Field.Forward)
+fgBlue = Input.input <| Field.Content "0" (Field.Selection 0 0 Field.Forward)
+rotation = Input.input <| Field.Content "0" (Field.Selection 0 0 Field.Forward)
+sides' = Input.input <| Field.Content "6" (Field.Selection 0 0 Field.Forward)
+
+fieldStyle = Field.Style (Field.uniformly 3) Field.noOutline (Field.Highlight black 10) defaultStyle
+
+effectSizeBox = Field.field fieldStyle effectSize'.handle id "2" <~ effectSize'.signal
+gridSizeBox   = Field.field fieldStyle gridSize'.handle id "5" <~ gridSize'.signal
+bgRedBox      = Field.field fieldStyle bgRed.handle id "0" <~ bgRed.signal
+bgGreenBox    = Field.field fieldStyle bgGreen.handle id "0" <~ bgGreen.signal
+bgBlueBox     = Field.field fieldStyle bgBlue.handle id "0" <~ bgBlue.signal
+fgRedBox      = Field.field fieldStyle fgRed.handle id "255" <~ fgRed.signal
+fgGreenBox    = Field.field fieldStyle fgGreen.handle id "156" <~ fgGreen.signal
+fgBlueBox     = Field.field fieldStyle fgBlue.handle id "0" <~ fgBlue.signal
+rotationBox   = Field.field fieldStyle rotation.handle id "0" <~ rotation.signal
+sidesBox      = Field.field fieldStyle sides'.handle id "6" <~ sides'.signal
+
+effectSizeString = .string <~ effectSize'.signal
+gridSizeString = .string <~ gridSize'.signal
+bgRedString = .string <~ bgRed.signal
+bgGreenString = .string <~ bgGreen.signal
+bgBlueString = .string <~ bgBlue.signal
+fgRedString = .string <~ fgRed.signal
+fgGreenString = .string <~ fgGreen.signal
+fgBlueString = .string <~ fgBlue.signal
+rotationString = .string <~ rotation.signal
+sidesString = .string <~ sides'.signal
 
 -- Input Signals:
 
@@ -94,8 +125,8 @@ type Environment = { mouse : (Int, Int)
 environment : Signal Environment
 environment = Environment <~ Mouse.position
                            ~ Window.dimensions
-                           ~ gridTypeBox
-                           ~ effectBox
+                           ~ (constant gridTypeBox)
+                           ~ (constant effectBox)
                            ~ effect
                            ~ effectSizeBox
                            ~ effectSize
