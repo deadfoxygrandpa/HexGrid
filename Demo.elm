@@ -10,17 +10,14 @@ import Dict
 import HexGrid (..)
 import HexGrid
 
-styleGuide : Float -> Int -> Color -> Int -> Float -> Form
-styleGuide rotation sides col n =
-    let colorize = case n of
-                    1 -> filled col
-                    2 -> filled col
-                    _ -> filled col
-        shape    = case n of
-                    1 -> scale 0.8 . rotate (degrees <| rotation + 30) . colorize . ngon sides
-                    2 -> scale 0.8 . rotate (degrees <| rotation + 35) . colorize . ngon sides
-                    _ -> scale 0.9 . rotate (degrees <| rotation + 30) . colorize . ngon sides -- colorize . square
-    in shape
+former rotation sides col scale' n = scale scale' . rotate (degrees <| rotation + 30) . filled col . ngon sides <| n 
+
+styleGuide : Form -> Form -> Form -> Int -> Float -> Form
+styleGuide form1 form2 form3 n _ =
+    case n of
+        0 -> form1
+        1 -> form2
+        2 -> form3
 
 -- Input Controls:
 gridSelector = Input.input True
@@ -43,16 +40,16 @@ effectBox = Input.dropDown effectSelector.handle
     ]
 effect = effectSelector.signal
 
-effectSize' = Input.input <| Field.Content "2" (Field.Selection 0 0 Field.Forward)
-gridSize' = Input.input <| Field.Content "5" (Field.Selection 0 0 Field.Forward)
-bgRed = Input.input <| Field.Content "0" (Field.Selection 0 0 Field.Forward)
-bgGreen = Input.input <| Field.Content "0" (Field.Selection 0 0 Field.Forward)
-bgBlue = Input.input <| Field.Content "0" (Field.Selection 0 0 Field.Forward)
-fgRed = Input.input <| Field.Content "255" (Field.Selection 0 0 Field.Forward)
-fgGreen = Input.input <| Field.Content "156" (Field.Selection 0 0 Field.Forward)
-fgBlue = Input.input <| Field.Content "0" (Field.Selection 0 0 Field.Forward)
-rotation = Input.input <| Field.Content "0" (Field.Selection 0 0 Field.Forward)
-sides' = Input.input <| Field.Content "6" (Field.Selection 0 0 Field.Forward)
+effectSize' = Input.input <| Field.Content "" (Field.Selection 0 0 Field.Forward)
+gridSize' = Input.input <| Field.Content "" (Field.Selection 0 0 Field.Forward)
+bgRed = Input.input <| Field.Content "" (Field.Selection 0 0 Field.Forward)
+bgGreen = Input.input <| Field.Content "" (Field.Selection 0 0 Field.Forward)
+bgBlue = Input.input <| Field.Content "" (Field.Selection 0 0 Field.Forward)
+fgRed = Input.input <| Field.Content "" (Field.Selection 0 0 Field.Forward)
+fgGreen = Input.input <| Field.Content "" (Field.Selection 0 0 Field.Forward)
+fgBlue = Input.input <| Field.Content "" (Field.Selection 0 0 Field.Forward)
+rotation = Input.input <| Field.Content "" (Field.Selection 0 0 Field.Forward)
+sides' = Input.input <| Field.Content "" (Field.Selection 0 0 Field.Forward)
 
 fieldStyle = Field.Style (Field.uniformly 3) Field.noOutline (Field.Highlight black 10) defaultStyle
 
@@ -122,8 +119,12 @@ type Environment = { mouse : (Int, Int)
                    , styleGuide : Int -> Float -> Form
                    }
 
+form1 = former <~ rotationOffest ~ sides ~ fgColor ~ (constant 0.8) ~ hexSize
+form2 = former <~ ((\x -> x + 5) <~ rotationOffest) ~ sides ~ fgColor ~ (constant 0.8) ~ hexSize
+form3 = former <~ rotationOffest ~ sides ~ fgColor ~ (constant 0.9) ~ hexSize
+
 environment : Signal Environment
-environment = Environment <~ Mouse.position
+environment = Environment <~ (sampleOn (fps 30) Mouse.position)
                            ~ Window.dimensions
                            ~ (constant gridTypeBox)
                            ~ (constant effectBox)
@@ -143,7 +144,7 @@ environment = Environment <~ Mouse.position
                            ~ fgGreenBox
                            ~ fgBlueBox
                            ~ fgColor
-                           ~ (styleGuide <~ rotationOffest ~ sides ~ fgColor)
+                           ~ (styleGuide <~ form1 ~ form2 ~ form3)
 
 scene environment =
     let (x, y) = environment.mouse
