@@ -93,6 +93,18 @@ inGrid ((x, y) as coord) grid =
                                       | x > offset - radius - (min 0 y) -> False
                                       | otherwise -> True
 
+valueAt : HexCoord -> HexGrid a -> Maybe a
+valueAt coord grid =
+    case grid of
+        Rectangular _ hs -> Dict.lookup coord hs
+        Hexagonal   _ hs -> Dict.lookup coord hs
+
+remove : HexCoord -> HexGrid a -> HexGrid a
+remove coord grid =
+    case grid of
+        Rectangular s hs -> Rectangular s <| Dict.remove coord hs
+        Hexagonal   r hs -> Hexagonal   r <| Dict.remove coord hs
+
 {-| Given a `HexCoord`, return all immediately surrounding `HexCoord`s in a list -}
 neighbors : HexCoord -> [HexCoord]
 neighbors (x, y) = [ hexCoord (x + 1) y, hexCoord (x + 1) (y - 1), hexCoord x (y - 1)
@@ -190,3 +202,19 @@ in a `Maybe` type. -}
 insertIfPossible : HexCoord -> a -> HexGrid a -> HexGrid a
 insertIfPossible coord v grid = if not <| inGrid coord grid then grid else
     maybe grid id <| insert coord v grid
+
+gridEqual : HexGrid a -> HexGrid a -> Bool
+gridEqual grid1 grid2 =
+    case grid1 of
+        Rectangular s hs ->
+            case grid2 of
+                Rectangular s' hs' -> if | s /= s'                           -> False
+                                         | Dict.toList hs /= Dict.toList hs' -> False
+                                         | otherwise                         -> True
+                _                  -> False
+        Hexagonal   r hs ->
+            case grid2 of
+                Hexagonal   r' hs' -> if | r /= r'                           -> False
+                                         | Dict.toList hs /= Dict.toList hs' -> False
+                                         | otherwise                         -> True
+                _                  -> False
