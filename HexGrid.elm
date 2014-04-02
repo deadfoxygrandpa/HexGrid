@@ -218,3 +218,9 @@ gridEqual grid1 grid2 =
                                          | Dict.toList hs /= Dict.toList hs' -> False
                                          | otherwise                         -> True
                 _                  -> False
+
+gridHeight : HexGrid a -> Int
+gridHeight grid =
+    case grid of
+        Rectangular (_, h) _ -> h
+        Hexagonal       r  _ -> 2 * r + 1
