@@ -264,8 +264,9 @@ rotationTests = testBinaryFunction rotation
     , ("rotation - Origin", (Left, hexCoord  0 0), hexCoord  0 0)
     ]
 
-tests : [Test]
-tests = rectangularHexGridTests
+tests : Test
+tests = suite "HexGrid Tests" <|
+        rectangularHexGridTests
      ++ hexagonalHexGridTests
      ++ showHexGridTests
      ++ pixelToHexCoordTests
