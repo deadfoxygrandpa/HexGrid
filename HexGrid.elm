@@ -96,8 +96,8 @@ inGrid ((x, y) as coord) grid =
 valueAt : HexCoord -> HexGrid a -> Maybe a
 valueAt coord grid =
     case grid of
-        Rectangular _ hs -> Dict.lookup coord hs
-        Hexagonal   _ hs -> Dict.lookup coord hs
+        Rectangular _ hs -> Dict.get coord hs
+        Hexagonal   _ hs -> Dict.get coord hs
 
 remove : HexCoord -> HexGrid a -> HexGrid a
 remove coord grid =
