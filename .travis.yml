@@ -2,14 +2,17 @@ language: haskell
 env:
   global:
   - ELM_HOME="./elm-home"
+  - ELM_IO="./ElmIO"
 install:
   - wget http://deadfoxygrandpa.github.io/elm-travis-cache/elm
   - wget http://deadfoxygrandpa.github.io/elm-travis-cache/elm-get
   - wget http://deadfoxygrandpa.github.io/elm-travis-cache/elm-io
+  - wget http://deadfoxygrandpa.github.io/elm-travis-cache/ElmIO.tar.gz
   - wget http://deadfoxygrandpa.github.io/elm-travis-cache/elm_home.tar.gz
   - chmod +x ./elm
   - chmod +x ./elm-get
   - chmod +x ./elm-io
+  - tar -xzf ElmIO.tar.gz ./
   - tar -xzf elm_home.tar.gz ./
   - echo "y" | ./elm-get install evancz/automaton
   - echo "y" | ./elm-get install deadfoxygrandpa/Elm-Test
