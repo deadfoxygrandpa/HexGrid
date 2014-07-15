@@ -1,4 +1,8 @@
 language: haskell
+env:
+  global:
+  - ELM_HOME="./elm-home"
+  - ELM_IO="./ElmIO"
 install:
   - wget http://deadfoxygrandpa.github.io/elm-travis-cache/elm-test-io.sh
   - chmod +x ./elm-test-io.sh
