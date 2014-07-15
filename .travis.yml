@@ -1,7 +1,7 @@
 language: haskell
 install:
   - wget http://deadfoxygrandpa.github.io/elm-travis-cache/elm-test-io.sh
-  - ./elm-test-io.sh
+  - sudo ./elm-test-io.sh
 before_script: elm-io --default-ports Tests/NodeTests.elm tests.js
 script:
   - elm --make Demo.elm
