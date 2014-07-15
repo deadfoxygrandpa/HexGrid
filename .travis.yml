@@ -4,20 +4,20 @@ env:
   - ELM_HOME="./elm-home"
   - ELM_IO="./ElmIO"
 install:
-  - wget http://deadfoxygrandpa.github.io/elm-travis-cache/elm
-  - wget http://deadfoxygrandpa.github.io/elm-travis-cache/elm-get
-  - wget http://deadfoxygrandpa.github.io/elm-travis-cache/elm-io
+  - sudo wget -P /usr/local/bin/ http://deadfoxygrandpa.github.io/elm-travis-cache/elm
+  - sudo wget -P /usr/local/bin/ http://deadfoxygrandpa.github.io/elm-travis-cache/elm-get
+  - sudo wget -P /usr/local/bin/ http://deadfoxygrandpa.github.io/elm-travis-cache/elm-io
   - wget http://deadfoxygrandpa.github.io/elm-travis-cache/ElmIO.tar.gz
   - wget http://deadfoxygrandpa.github.io/elm-travis-cache/elm_home.tar.gz
-  - chmod +x ./elm
-  - chmod +x ./elm-get
-  - chmod +x ./elm-io
+  - sudo chmod +x /usr/local/bin/elm
+  - sudo chmod +x /usr/local/bin/elm-get
+  - sudo chmod +x /usr/local/bin/elm-io
   - tar -xzf ElmIO.tar.gz
   - tar -xzf elm_home.tar.gz ./
-  - echo "y" | ./elm-get install evancz/automaton
-  - echo "y" | ./elm-get install deadfoxygrandpa/Elm-Test
+  - echo "y" | elm-get install evancz/automaton
+  - echo "y" | elm-get install deadfoxygrandpa/Elm-Test
   - npm install jsdom
-before_script: ./elm-io --default-ports Tests/NodeTests.elm tests.js
+before_script: elm-io --default-ports Tests/NodeTests.elm tests.js
 script:
-  - ./elm --make Demo.elm
+  - elm --make Demo.elm
   - node --stack-size=32000 tests.js
