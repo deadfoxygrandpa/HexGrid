@@ -12,7 +12,7 @@ install:
   - chmod +x ./elm
   - chmod +x ./elm-get
   - chmod +x ./elm-io
-  - tar -xzf ElmIO.tar.gz ./
+  - tar -xzf ElmIO.tar.gz
   - tar -xzf elm_home.tar.gz ./
   - echo "y" | ./elm-get install evancz/automaton
   - echo "y" | ./elm-get install deadfoxygrandpa/Elm-Test
