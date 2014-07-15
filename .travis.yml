@@ -20,4 +20,4 @@ install:
 before_script: elm-io --default-ports Tests/NodeTests.elm tests.js
 script:
   - elm --make Demo.elm
-  - node --stack-size=32000 tests.js
+  - node tests.js
